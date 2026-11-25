@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.db.models import Prefetch
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
@@ -79,10 +80,18 @@ def product_detail(request, slug):
 
 
 def gallery(request):
+    categories = Category.objects.prefetch_related(
+        Prefetch(
+            "products",
+            queryset=Product.objects.filter(is_active=True).order_by(
+                "sort_order", "name"
+            ),
+        )
+    )
     return render(
         request,
         "gallery.html",
-        {"categories": Category.objects.all()},
+        {"categories": categories},
     )
 
 

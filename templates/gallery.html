@@ -13,16 +13,58 @@
 </section>
 
 <section class="gallery-section" id="gallerySection">
-  <div class="gallery-mosaic">
+  <nav class="gallery-filters" aria-label="Filter gallery by collection">
+    <button type="button" class="gallery-filter is-active" data-gallery-filter="all">All</button>
     {% for cat in categories %}
-    <a
-      href="{% url 'collection' cat.slug %}"
-      class="gallery-tile{% if forloop.first %} gallery-tile--wide{% endif %}"
-    >
-      <img src="{{ cat.image_url }}" alt="{{ cat.name }}" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}" />
-      <span class="gallery-tile-title">{{ cat.name }}</span>
-    </a>
+    <button type="button" class="gallery-filter" data-gallery-filter="{{ cat.slug }}">{{ cat.name }}</button>
     {% endfor %}
+  </nav>
+
+  {% for cat in categories %}
+  <div class="gallery-group" data-gallery-group="{{ cat.slug }}">
+    <div class="gallery-group-head">
+      <h2>{{ cat.name }}</h2>
+      <a href="{% url 'collection' cat.slug %}">View collection</a>
+    </div>
+    <div class="gallery-mosaic">
+      {% for product in cat.products.all %}
+      <a
+        href="{{ product.get_absolute_url }}"
+        class="gallery-tile"
+        data-gallery-item
+        data-name="{{ product.name }}"
+        data-category="{{ cat.name }}"
+        data-image="{{ product.image_url }}"
+      >
+        <span class="gallery-tile-media">
+          <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy" />
+        </span>
+        <span class="gallery-tile-caption">
+          <span class="gallery-tile-cat">{{ cat.name }}</span>
+          <span class="gallery-tile-title">{{ product.name }}</span>
+        </span>
+      </a>
+      {% empty %}
+      <p class="gallery-empty">No products in this collection yet.</p>
+      {% endfor %}
+    </div>
   </div>
+  {% empty %}
+  <p class="gallery-empty">No collections to show yet.</p>
+  {% endfor %}
 </section>
+
+<div class="gallery-lightbox" id="galleryLightbox" hidden>
+  <button type="button" class="gallery-lightbox-close" id="galleryLightboxClose" aria-label="Close">×</button>
+  <button type="button" class="gallery-lightbox-nav gallery-lightbox-prev" id="galleryLightboxPrev" aria-label="Previous">‹</button>
+  <figure class="gallery-lightbox-figure">
+    <img src="" alt="" id="galleryLightboxImg" />
+    <figcaption id="galleryLightboxCaption"></figcaption>
+  </figure>
+  <button type="button" class="gallery-lightbox-nav gallery-lightbox-next" id="galleryLightboxNext" aria-label="Next">›</button>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/gallery-page.js' %}"></script>
 {% endblock %}

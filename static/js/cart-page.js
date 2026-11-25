@@ -28,7 +28,7 @@
           '<div class="bag-info">' +
             '<p class="bag-cat">' + (item.category || "") + "</p>" +
             '<a href="' + item.url + '"><h3>' + item.name + "</h3></a>" +
-            '<label>Qty <input type="number" min="1" value="' + item.qty + '" data-qty="' + item.slug + '"></label>' +
+            '<label>Qty <input type="number" min="1" max="9999" value="' + item.qty + '" data-qty="' + item.slug + '"></label>' +
           "</div>" +
           '<button type="button" class="bag-remove" data-remove="' + item.slug + '" aria-label="Remove">×</button>' +
         "</article>"

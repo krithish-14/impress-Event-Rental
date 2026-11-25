@@ -12,7 +12,7 @@
   var lightbox = document.getElementById("pdpLightbox");
   var closeBtn = document.getElementById("pdpLightboxClose");
   var minQty = qty ? Math.max(1, parseInt(qty.getAttribute("min"), 10) || 1) : 1;
-  var maxQty = qty ? Math.max(minQty, parseInt(qty.getAttribute("max"), 10) || 20) : 20;
+  var maxQty = qty ? Math.max(minQty, parseInt(qty.getAttribute("max"), 10) || 9999) : 9999;
   var cartResetTimer = null;
 
   function store() {

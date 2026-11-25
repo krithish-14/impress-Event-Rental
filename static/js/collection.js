@@ -3,7 +3,8 @@
   var grid = document.getElementById("product-grid");
   if (!store || !grid) return;
 
-  var MAX_QTY = 20;
+  var MIN_QTY = 1;
+  var MAX_QTY = 9999;
 
   function itemFromCard(card, qty) {
     return {
@@ -18,7 +19,7 @@
 
   function clampQty(value) {
     var qty = parseInt(value, 10);
-    if (isNaN(qty) || qty < 1) qty = 1;
+    if (isNaN(qty) || qty < MIN_QTY) qty = MIN_QTY;
     if (qty > MAX_QTY) qty = MAX_QTY;
     return qty;
   }

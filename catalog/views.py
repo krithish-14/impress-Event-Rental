@@ -46,8 +46,8 @@ def product_detail(request, slug):
         is_active=True,
         name__icontains=product.name.split("(")[0].strip()[:18],
     )[:6]
-    max_qty = min(product.qty_number, 20) if product.qty_number > 0 else 20
-    max_qty = max(max_qty, 1)
+    # Quote flow: allow customers to request any quantity (not limited by display stock).
+    max_qty = 9999
     sort_key = request.GET.get("review_sort") or "newest"
     summary = rating_summary(product)
     reviews = public_reviews(product, sort_key)
@@ -68,7 +68,6 @@ def product_detail(request, slug):
             "related": related,
             "variants": variants if variants.count() > 1 else [],
             "max_qty": max_qty,
-            "qty_range": range(1, max_qty + 1),
             "review_summary": summary,
             "review_page": reviews,
             "review_sort": sort_key if sort_key in {"newest", "highest", "lowest", "helpful"} else "newest",

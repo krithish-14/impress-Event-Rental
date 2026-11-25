@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="hero" id="home">
+  <div class="hero-slider">
+    <img src="{% static 'images/hero/1.webp' %}" alt="Event rental hero 1" class="slide" />
+    <img src="{% static 'images/hero/2.webp' %}" alt="Event rental hero 2" class="slide" />
+    <img src="{% static 'images/hero/3.webp' %}" alt="Event rental hero 3" class="slide" />
+    <img src="{% static 'images/hero/4.webp' %}" alt="Event rental hero 4" class="slide" />
+    <img src="{% static 'images/hero/5.webp' %}" alt="Event rental hero 5" class="slide" />
+    <img src="{% static 'images/hero/6.webp' %}" alt="Event rental hero 6" class="slide" />
+  </div>
+</section>
+
+<div class="ribbon">
+  <div class="ribbon-track">
+    {% for n in "xxxxxxxx" %}
+    <div class="ribbon-group"{% if not forloop.first %} aria-hidden="true"{% endif %}>
+      <div class="ribbon-item">
+        <div class="ribbon-badge">
+          <img src="{% static 'images/ribbon/amoga-decors.webp' %}" alt="{% if forloop.first %}Amoga Decors{% endif %}" class="ribbon-logo" />
+        </div>
+      </div>
+      <div class="ribbon-item">
+        <div class="ribbon-badge">
+          <img src="{% static 'images/ribbon/event-rentals.webp' %}" alt="{% if forloop.first %}Event Rentals{% endif %}" class="ribbon-logo" />
+        </div>
+      </div>
+      <div class="ribbon-item">
+        <div class="ribbon-badge">
+          <img src="{% static 'images/ribbon/impress-decors.webp' %}" alt="{% if forloop.first %}Impress Decors{% endif %}" class="ribbon-logo" />
+        </div>
+      </div>
+      <div class="ribbon-item">
+        <div class="ribbon-badge">
+          <img src="{% static 'images/ribbon/signature-seating.webp' %}" alt="{% if forloop.first %}Signature Seating{% endif %}" class="ribbon-logo" />
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<section class="welcome-section">
+  <div class="welcome-container">
+    <div class="welcome-left">
+      <h2>
+        Welcome to<br />
+        <span>Event Rental</span>
+      </h2>
+    </div>
+    <div class="welcome-right">
+      <p>
+        Event Rental offers a distinguished collection of sheds and stages, chairs, tables,
+        barricades, aircoolers, crockery, décor, tech support, and designer lighting
+        crafted for weddings, corporate events, exhibitions, VIP lounges, and special celebrations.
+      </p>
+      <p>
+        With a focus on comfort, style, and sophistication, we provide rental
+        solutions that elevate venue aesthetics and enhance guest experiences.
+        Our carefully curated collections help create memorable event
+        environments that leave a lasting impression.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="col-section">
+  <div class="floral-bg" aria-hidden="true">
+    <svg width="100%" height="100%" viewBox="0 0 1200 640" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" opacity="0.14">
+      <g fill="none" stroke="#9a7a2a" stroke-width="0.9">
+        <circle cx="70" cy="90" r="44" />
+        <circle cx="70" cy="90" r="30" />
+        <circle cx="70" cy="90" r="16" />
+        <circle cx="70" cy="90" r="6" fill="#9a7a2a" stroke="none" />
+        <circle cx="1130" cy="550" r="44" />
+        <circle cx="1130" cy="550" r="30" />
+        <circle cx="1130" cy="550" r="16" />
+        <circle cx="1130" cy="550" r="6" fill="#9a7a2a" stroke="none" />
+        <circle cx="1100" cy="80" r="22" />
+        <circle cx="1100" cy="80" r="13" />
+        <circle cx="1100" cy="80" r="4" fill="#9a7a2a" stroke="none" />
+      </g>
+    </svg>
+  </div>
+
+  <div class="top-border-line">
+    <svg class="border-line-svg" viewBox="0 0 960 36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <line x1="0" y1="18" x2="400" y2="18" stroke="#c9973a" stroke-width="0.9" />
+      <polygon points="403,18 412,12 421,18 412,24" fill="#c9973a" opacity="0.65" />
+      <circle cx="440" cy="18" r="3.5" fill="#c9973a" />
+      <path d="M 452 18 Q 462 9 472 18 Q 482 27 492 18" fill="none" stroke="#c9973a" stroke-width="1.3" />
+      <circle cx="472" cy="18" r="6" fill="none" stroke="#c9973a" stroke-width="1.1" />
+      <circle cx="504" cy="18" r="3.5" fill="#c9973a" />
+      <polygon points="517,18 526,12 535,18 526,24" fill="#c9973a" opacity="0.65" />
+      <line x1="538" y1="18" x2="960" y2="18" stroke="#c9973a" stroke-width="0.9" />
+    </svg>
+  </div>
+
+  <div class="col-header">
+    <h1>Our <span>Collections</span></h1>
+    <p class="col-subtitle">Signature Rentals for Every Occasion</p>
+    <div class="divider-ornament">
+      <div class="divider-line"></div>
+      <div class="divider-diamond"></div>
+      <div class="divider-line"></div>
+    </div>
+    <p class="col-desc">
+      Discover thoughtfully curated rental collections designed to elevate
+      weddings, corporate events, luxury celebrations and hospitality experiences.
+    </p>
+  </div>
+
+  <div class="col-slider" id="colSlider">
+    <button class="col-slider-btn col-slider-prev" type="button" aria-label="Previous collections">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    <div class="col-slider-viewport">
+      <div class="col-slider-track">
+        {% for item in featured_categories %}
+        <article class="col-card">
+          <div class="card-img-wrap">
+            <img src="{{ item.image_url }}" alt="{{ item.name }}" loading="lazy" />
+            <div class="card-img-overlay"></div>
+          </div>
+          <div class="card-body">
+            <span class="card-icon" aria-hidden="true">
+              <i class="{{ item.icon }} card-fa-icon"></i>
+            </span>
+            <h2 class="card-title">{{ item.name }}</h2>
+            <p class="card-subtitle">{{ item.subtitle }}</p>
+            <div class="card-rule"></div>
+            <p class="card-desc">{{ item.description }}</p>
+            <a class="card-btn" href="{% url 'collection' item.slug %}">
+              View Collection <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </a>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+    <button class="col-slider-btn col-slider-next" type="button" aria-label="Next collections">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+    <div class="col-slider-dots" id="colSliderDots" aria-hidden="true"></div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Cart — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="nlv2_bredcrumb_wrapper">
+  <div class="banner-content"><h1>Cart</h1></div>
+</section>
+
+<section class="bag-page">
+  <div class="bag-wrap" id="cartPage">
+    <div class="bag-empty" id="cartEmpty">
+      <i class="fa-solid fa-bag-shopping"></i>
+      <h2>Your cart is empty</h2>
+      <p>Add rentals from any collection to request a quote.</p>
+      <a class="card-btn" href="{% url 'home' %}#collections">Browse Collections</a>
+    </div>
+    <div class="bag-list" id="cartList" hidden></div>
+    <div class="bag-footer" id="cartFooter" hidden>
+      <p class="bag-total">Items in cart: <strong id="cartTotal">0</strong></p>
+      <a class="pdp-btn pdp-btn-quote" id="cartQuoteBtn" href="{% url 'contact' %}">Request Quote</a>
+      <a class="pdp-btn pdp-btn-whatsapp" id="cartWhatsappBtn" href="https://wa.me/{{ site_whatsapp }}" target="_blank" rel="noreferrer">
+        <i class="fa-brands fa-whatsapp"></i>
+        WhatsApp Enquiry
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/cart-page.js' %}?v=11"></script>
+{% endblock %}

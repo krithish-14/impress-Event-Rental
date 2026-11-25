@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Wishlist — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="nlv2_bredcrumb_wrapper">
+  <div class="banner-content"><h1>Wishlist</h1></div>
+</section>
+
+<section class="bag-page">
+  <div class="bag-wrap" id="wishlistPage">
+    <div class="bag-empty" id="wishEmpty">
+      <i class="fa-regular fa-heart"></i>
+      <h2>Your wishlist is empty</h2>
+      <p>Tap the heart on a product to save it here.</p>
+      <a class="card-btn" href="{% url 'home' %}#collections">Browse Collections</a>
+    </div>
+    <div class="bag-list" id="wishList" hidden></div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/wishlist-page.js' %}"></script>
+{% endblock %}

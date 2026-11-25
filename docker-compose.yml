@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:16
+    container_name: event-rental-db
+    environment:
+      POSTGRES_DB: event_rental
+      POSTGRES_USER: eventrental
+      POSTGRES_PASSWORD: eventrental
+    ports:
+      - "5433:5432"
+    volumes:
+      - event_rental_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eventrental -d event_rental"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  event_rental_pgdata:

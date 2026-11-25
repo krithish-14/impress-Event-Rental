@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Settings — {{ site_name }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}" />
+{% endblock %}
+
+{% block content %}
+<section class="nlv2_bredcrumb_wrapper">
+  <div class="banner-content"><h1>Settings</h1></div>
+</section>
+
+<div class="auth-page settings-page">
+  <div class="auth-card">
+    <h2>Your account</h2>
+    <p class="auth-lead">Update your photo, contact details, and password.</p>
+    {% if success %}
+    <div class="alert alert-success" style="margin-bottom: 18px;">{{ success }}</div>
+    {% endif %}
+    {% if error %}
+    <div class="alert alert-error" style="margin-bottom: 18px;">{{ error }}</div>
+    {% endif %}
+    <form class="auth-form" method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+      <div class="settings-photo">
+        <div class="settings-photo-preview{% if profile.photo %} has-photo{% endif %}" id="settingsPhotoWrap">
+          <img
+            id="settingsPhotoPreview"
+            src="{% if profile.photo %}{{ profile.photo.url }}{% endif %}"
+            alt="Profile photo"
+            class="{% if not profile.photo %}is-hidden{% endif %}"
+          />
+          <i class="fa-regular fa-user{% if profile.photo %} is-hidden{% endif %}" id="settingsPhotoIcon"></i>
+        </div>
+        <div class="settings-photo-actions">
+          <label class="settings-photo-btn" for="settingsPhotoInput">Upload image</label>
+          <button type="button" class="settings-photo-btn is-ghost" id="settingsPhotoAdjust"{% if not profile.photo %} hidden{% endif %}>Adjust photo</button>
+        </div>
+        <input type="file" id="settingsPhotoInput" name="photo" accept="image/*" />
+        <span class="auth-hint">JPG or PNG, up to 2 MB. Drag and zoom to fit the circle.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="name">Full name</label>
+        <input type="text" id="name" name="name" required autocomplete="name" value="{{ form.name }}" />
+      </div>
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email" required autocomplete="email" value="{{ form.email }}" />
+      </div>
+      <div class="form-group">
+        <label for="phone">Mobile number</label>
+        <input type="tel" id="phone" name="phone" required inputmode="numeric" autocomplete="tel" maxlength="15" value="{{ form.phone }}" />
+      </div>
+      <div class="form-group">
+        <label for="password">New password</label>
+        <div class="auth-password-wrap">
+          <input type="password" id="password" name="password" autocomplete="new-password" minlength="8" placeholder="Leave blank to keep current password" />
+          <button type="button" class="auth-toggle-password" data-target="password" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="password_confirm">Confirm new password</label>
+        <div class="auth-password-wrap">
+          <input type="password" id="password_confirm" name="password_confirm" autocomplete="new-password" minlength="8" placeholder="Re-enter new password" />
+          <button type="button" class="auth-toggle-password" data-target="password_confirm" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
+        </div>
+      </div>
+      <button type="submit" class="submit-btn">Save changes</button>
+    </form>
+  </div>
+</div>
+
+<div class="auth-modal" id="photoCropModal" hidden>
+  <div class="auth-modal-backdrop" data-crop-close></div>
+  <div class="auth-modal-dialog photo-crop-dialog" role="dialog" aria-modal="true" aria-labelledby="photoCropTitle">
+    <button type="button" class="auth-modal-close" data-crop-close aria-label="Close">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <h2 id="photoCropTitle">Adjust photo</h2>
+    <p class="photo-crop-hint">Drag to move. Use the slider or scroll to zoom.</p>
+    <div class="photo-crop-viewport" id="photoCropViewport">
+      <img id="photoCropImage" alt="" />
+    </div>
+    <div class="photo-crop-zoom">
+      <i class="fa-solid fa-minus" aria-hidden="true"></i>
+      <input type="range" id="photoCropZoom" min="1" max="3" step="0.01" value="1" aria-label="Zoom" />
+      <i class="fa-solid fa-plus" aria-hidden="true"></i>
+    </div>
+    <div class="photo-crop-actions">
+      <button type="button" class="settings-photo-btn" data-crop-close>Cancel</button>
+      <button type="button" class="submit-btn" id="photoCropApply">Use photo</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/settings-photo.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends "admin/base_site.html" %}
+{% load i18n log %}
+
+{% block coltype %}{% endblock %}
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+{% block nav-breadcrumbs %}{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+<div class="er-shell">
+  <header class="er-pagehead">
+    <h1>Admin Dashboard</h1>
+    <p>Add or update products, watch live stock, and review customer quotes.</p>
+  </header>
+
+  <section class="er-stats" aria-label="Overview">
+    <div class="er-stat">
+      <span>Collections</span>
+      <strong>{{ er_collections }}</strong>
+    </div>
+    <div class="er-stat">
+      <span>Products</span>
+      <strong>{{ er_products }}</strong>
+    </div>
+    <div class="er-stat">
+      <span>On website</span>
+      <strong>{{ er_active }}</strong>
+    </div>
+    <div class="er-stat">
+      <span>Live units</span>
+      <strong>{{ er_units }}</strong>
+    </div>
+    <div class="er-stat">
+      <span>New quotes</span>
+      <strong>{{ er_new_quotes }}</strong>
+    </div>
+    <div class="er-stat">
+      <span>Rented stock</span>
+      <strong>{{ er_rented_stock }}</strong>
+    </div>
+  </section>
+
+  <div class="er-layout">
+    <section class="er-card">
+      <div class="er-card-head">
+        <div>
+          <h2>Rental catalogue</h2>
+          <p>The same three jobs as the storefront: stock, products, and quotes.</p>
+        </div>
+        <a class="er-btn" href="{% url 'admin:catalog_product_add' %}">Add product</a>
+      </div>
+      <div class="er-linklist">
+        <a class="er-linkrow" href="{% url 'admin:catalog_product_changelist' %}">
+          <strong>Live stock</strong>
+          <span>{{ er_products }} products · {{ er_units }} units in catalogue</span>
+        </a>
+        <a class="er-linkrow" href="{% url 'admin:catalog_product_changelist' %}?rented=yes">
+          <strong>Rented stock</strong>
+          <span>{{ er_rented_stock }} item{{ er_rented_stock|pluralize }} currently out on an event</span>
+        </a>
+        <a class="er-linkrow" href="{% url 'admin:catalog_category_changelist' %}">
+          <strong>Collections</strong>
+          <span>{{ er_collections }} gallery tiles and collection pages</span>
+        </a>
+        <a class="er-linkrow" href="{% url 'admin:catalog_inquiry_changelist' %}">
+          <strong>Customer quotes</strong>
+          <span>{% if unread_quotes %}{{ unread_quotes }} new{% else %}All quotes reviewed{% endif %}</span>
+        </a>
+      </div>
+    </section>
+
+    <aside class="er-card">
+      <div class="er-card-head">
+        <div>
+          <h2>Recent actions</h2>
+          <p>Your latest changes in this portal.</p>
+        </div>
+      </div>
+      {% get_admin_log 8 as admin_log for_user user %}
+      {% if not admin_log %}
+        <p class="er-empty">No actions yet. Add a product or mark a quote as read to see activity here.</p>
+      {% else %}
+        <ul class="er-actions">
+          {% for entry in admin_log %}
+            <li class="{% if entry.is_addition %}is-add{% elif entry.is_change %}is-change{% else %}is-delete{% endif %}">
+              {% if entry.is_deletion or not entry.get_admin_url %}
+                <strong>{{ entry.object_repr }}</strong>
+              {% else %}
+                <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+              {% endif %}
+              <span>{% if entry.content_type %}{{ entry.content_type.name|capfirst }}{% else %}Record{% endif %}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </aside>
+
+    <section class="er-card">
+      <div class="er-card-head">
+        <div>
+          <h2>Staff access</h2>
+          <p>Who can sign in to this portal.</p>
+        </div>
+      </div>
+      <div class="er-linklist">
+        <a class="er-linkrow" href="{% url 'admin:auth_user_changelist' %}">
+          <strong>Users</strong>
+          <span>Add or update staff logins</span>
+        </a>
+        <a class="er-linkrow" href="{% url 'admin:auth_group_changelist' %}">
+          <strong>Groups</strong>
+          <span>Set permissions for a team</span>
+        </a>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

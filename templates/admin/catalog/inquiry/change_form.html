@@ -1,0 +1,10 @@
+{% extends "admin/change_form.html" %}
+
+{% block object-tools-items %}
+  {% if original and original.status != "accepted" %}
+  <li>
+    <button type="button" class="er-accept-btn" data-url="{% url 'admin:catalog_inquiry_accept' original.pk %}" data-name="{{ original.name }}">Accept quote</button>
+  </li>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}

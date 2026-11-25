@@ -1,0 +1,6 @@
+{% for n in "12345" %}
+<label class="pdp-star-choice">
+  <input type="radio" id="rate-{{ prefix }}-{{ n }}" name="rating" value="{{ n }}" aria-label="{{ n }} stars" {% if selected|stringformat:"s" == n %}checked{% endif %} required />
+  <i class="fa-solid fa-star" aria-hidden="true"></i>
+</label>
+{% endfor %}

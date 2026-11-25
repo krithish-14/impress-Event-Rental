@@ -1,0 +1,17 @@
+{% load i18n %}
+<details class="er-filter-group" data-filter-title="{{ title }}" open>
+  <summary>
+    <span class="er-filter-title">{{ title|capfirst }}</span>
+    <span class="er-filter-chevron" aria-hidden="true"></span>
+  </summary>
+  <ul>
+    {% for choice in choices %}
+      <li{% if choice.selected %} class="selected"{% endif %}>
+        <a href="{{ choice.query_string|iriencode }}">
+          <span class="er-filter-mark" aria-hidden="true"></span>
+          <span class="er-filter-label">{{ choice.display }}</span>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</details>

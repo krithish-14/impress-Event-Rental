@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Terms &amp; Conditions — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="nlv2_bredcrumb_wrapper">
+  <div class="banner-content"><h1>Terms &amp; Conditions</h1></div>
+</section>
+<section class="iss-policy-section">
+  <div class="container">
+    <div class="iss-policy-card">
+      <h2 class="iss-policy-title">Terms &amp; Conditions</h2>
+      <p>Welcome to <strong>{{ site_name }}</strong>. By accessing our website or engaging our services, you agree to the following Terms &amp; Conditions.</p>
+      <div class="iss-policy-block">
+        <h4>Services</h4>
+        <p>{{ site_name }} provides premium seating, tables, tents, lighting, and event furniture rentals for weddings, corporate events, celebrations, private gatherings, and special occasions.</p>
+        <p>All services are subject to availability and confirmation.</p>
+      </div>
+      <div class="iss-policy-block">
+        <h4>Quotations &amp; Bookings</h4>
+        <ul class="iss-policy-list">
+          <li>All quotations are subject to availability at the time of confirmation.</li>
+          <li>A booking is considered confirmed only upon receipt of the agreed advance payment.</li>
+          <li>Prices may vary based on event location, duration, quantity, and customization requirements.</li>
+        </ul>
+      </div>
+      <div class="iss-policy-block">
+        <h4>Payments</h4>
+        <ul class="iss-policy-list">
+          <li>Payment terms will be specified in the quotation or agreement.</li>
+          <li>Delayed payments may result in additional charges or cancellation of services.</li>
+          <li>Outstanding balances must be settled within the agreed timeline.</li>
+        </ul>
+      </div>
+      <div class="iss-policy-block">
+        <h4>Delivery &amp; Collection</h4>
+        <ul class="iss-policy-list">
+          <li>Delivery and collection schedules will be coordinated with the client.</li>
+          <li>Clients must ensure adequate access to the venue for loading, unloading, installation, and dismantling.</li>
+          <li>Delays caused by venue restrictions or client-side arrangements may incur additional charges.</li>
+        </ul>
+      </div>
+      <div class="iss-policy-block">
+        <h4>Client Responsibilities</h4>
+        <p>The client agrees to:</p>
+        <ul class="iss-policy-list">
+          <li>Provide accurate event information.</li>
+          <li>Ensure a safe and accessible venue environment.</li>
+          <li>Protect rented furniture and assets from misuse, theft, or intentional damage.</li>
+        </ul>
+      </div>
+      <div class="iss-policy-block">
+        <h4>Damage or Loss</h4>
+        <p>The client shall be responsible for any loss, theft, or damage to rented items during the rental period, excluding normal wear and tear.</p>
+      </div>
+      <div class="iss-policy-block">
+        <h4>Cancellation Policy</h4>
+        <ul class="iss-policy-list">
+          <li>Cancellation requests must be submitted in writing.</li>
+          <li>Advance payments may be non-refundable depending on the stage of booking and preparation.</li>
+          <li>Any applicable cancellation charges will be communicated at the time of cancellation.</li>
+        </ul>
+      </div>
+      <div class="iss-policy-block">
+        <h4>Governing Law</h4>
+        <p>These Terms &amp; Conditions shall be governed and interpreted in accordance with the laws of India.</p>
+      </div>
+      <div class="iss-policy-block iss-policy-contact">
+        <h4>Contact Information</h4>
+        <p><strong>{{ site_name }}</strong><br />{{ site_tagline }}</p>
+        <a href="mailto:{{ site_email }}">{{ site_email }}</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

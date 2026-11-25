@@ -1,0 +1,92 @@
+<article class="pdp-review-card">
+  <div class="pdp-review-person">
+    {% if review.reviewer_photo_url %}
+    <img class="pdp-review-avatar" src="{{ review.reviewer_photo_url }}" alt="" />
+    {% else %}
+    <span class="pdp-review-avatar pdp-review-avatar-fallback" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
+    {% endif %}
+    <div>
+      <div class="pdp-review-name-row">
+        <strong>{{ review.reviewer_name }}</strong>
+        {% if user.is_authenticated and review.user_id == user.id %}
+        <div class="pdp-review-owner">
+          <button type="button" class="pdp-review-icon" data-edit-review="{{ review.pk }}" aria-label="Edit review">
+            <i class="fa-solid fa-pen" aria-hidden="true"></i>
+          </button>
+          <form method="post" action="{% url 'review_withdraw' review.pk %}" onsubmit="return confirm('Delete this review?');">
+            {% csrf_token %}
+            <button type="submit" class="pdp-review-icon" aria-label="Delete review">
+              <i class="fa-solid fa-trash" aria-hidden="true"></i>
+            </button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+      <p class="pdp-review-date">Reviewed on {{ review.created_at|date:"j F Y" }}</p>
+    </div>
+  </div>
+  <p class="pdp-rating-stars" aria-label="{{ review.rating }} out of 5 stars">{% include "reviews_stars.html" with score=review.rating %}</p>
+  {% if review.verified_rental %}
+  <p class="pdp-verified">Verified rental</p>
+  {% endif %}
+  <p class="pdp-review-copy">{{ review.body }}</p>
+  {% if user.is_authenticated and review.user_id == user.id %}
+  <form class="pdp-review-inline-edit" id="edit-review-{{ review.pk }}" hidden method="post" action="{% url 'review_edit' review.pk %}">
+    {% csrf_token %}
+    <div class="pdp-field">
+      <span class="pdp-field-label">Your rating</span>
+      <div class="pdp-star-picker" role="radiogroup" aria-label="Your rating">
+        {% include "reviews_star_input.html" with prefix=review.pk selected=review.rating %}
+      </div>
+    </div>
+    <div class="pdp-field">
+      <label for="edit-body-{{ review.pk }}">Your review</label>
+      <textarea id="edit-body-{{ review.pk }}" name="body" maxlength="2000" required>{{ review.body }}</textarea>
+    </div>
+    <button type="submit" class="pdp-review-submit">Save changes</button>
+  </form>
+  {% endif %}
+  {% if review.images.all %}
+  <div class="pdp-review-photos">
+    {% for photo in review.images.all %}
+    {% if photo.moderation_status == "approved" or photo.moderation_status == "pending" %}
+    <img src="{{ photo.image.url }}" alt="Photo from this review" />
+    {% endif %}
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% if review.response_text %}
+  <div class="pdp-review-response">
+    <strong>Response from {{ site_name }}</strong>
+    <p>{{ review.response_text }}</p>
+  </div>
+  {% endif %}
+  {% if review.status == "published" and user.is_authenticated and review.user_id != user.id %}
+  <div class="pdp-review-actions">
+    <form method="post" action="{% url 'review_vote' review.pk %}">
+      {% csrf_token %}
+      <input type="hidden" name="helpful" value="1" />
+      <button type="submit">Helpful ({{ review.helpful_count }})</button>
+    </form>
+    <form method="post" action="{% url 'review_vote' review.pk %}">
+      {% csrf_token %}
+      <input type="hidden" name="helpful" value="0" />
+      <button type="submit">Not helpful ({{ review.not_helpful_count }})</button>
+    </form>
+    <form method="post" action="{% url 'review_report' review.pk %}">
+      {% csrf_token %}
+      <label class="visually-hidden" for="reason-{{ review.pk }}">Report reason</label>
+      <select id="reason-{{ review.pk }}" name="reason" required>
+        <option value="">Report</option>
+        <option value="spam">Spam</option>
+        <option value="abuse">Abusive content</option>
+        <option value="irrelevant">Irrelevant</option>
+        <option value="other">Other</option>
+      </select>
+      <button type="submit">Report</button>
+    </form>
+  </div>
+  {% elif review.status == "published" and not user.is_authenticated %}
+  <p class="pdp-review-note"><a href="{% url 'login' %}?next={{ request.path }}">Log in</a> to mark a review helpful or report it.</p>
+  {% endif %}
+</article>

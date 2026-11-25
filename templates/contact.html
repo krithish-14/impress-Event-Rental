@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Contact Us — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="nlv2_bredcrumb_wrapper">
+  <div class="banner-content"><h1>Contact Us</h1></div>
+</section>
+
+<div class="contact-container">
+  <div class="contact-info-col">
+    <h2 class="contact-card-title">Get in Touch</h2>
+    <div class="contact-detail-item">
+      <div class="contact-detail-icon"><i class="fa-solid fa-phone"></i></div>
+      <div class="contact-detail-content">
+        <h4>Phone Number</h4>
+        <p><a href="tel:{{ site_phone_tel }}">{{ site_phone }}</a></p>
+      </div>
+    </div>
+    <div class="contact-detail-item">
+      <div class="contact-detail-icon"><i class="fa-solid fa-envelope"></i></div>
+      <div class="contact-detail-content">
+        <h4>Email Address</h4>
+        <p><a href="mailto:{{ site_email }}">{{ site_email }}</a></p>
+      </div>
+    </div>
+    <div class="contact-detail-item">
+      <div class="contact-detail-icon"><i class="fa-solid fa-location-dot"></i></div>
+      <div class="contact-detail-content">
+        <h4>Office Location</h4>
+        <p>
+          {% for line in site_address_lines %}
+            {{ line }}{% if not forloop.last %}<br />{% endif %}
+          {% endfor %}
+        </p>
+      </div>
+    </div>
+    <div style="border-radius: 12px; overflow: hidden; margin-top: 10px;">
+      <iframe src="{{ site_map_embed }}" width="100%" height="280" style="border:0" allowfullscreen loading="lazy" title="{{ site_name }} location"></iframe>
+    </div>
+  </div>
+
+  <div class="contact-form-col">
+    <h2 class="contact-card-title">Send a Message</h2>
+    <div class="alert alert-success" id="contactSuccess" style="display:none; margin-bottom: 20px;"></div>
+    <div class="alert alert-error" id="contactError" style="display:none; margin-bottom: 20px;"></div>
+    <form class="contact-form" id="contactForm" action="{% url 'contact_submit' %}" method="post" novalidate>
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="name">Your Name</label>
+        <input type="text" id="name" name="name" required placeholder="Enter your full name" />
+        <span class="error-msg" data-for="name"></span>
+      </div>
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" required placeholder="Enter your email address" />
+        <span class="error-msg" data-for="email"></span>
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone" required placeholder="Enter your phone number (e.g. +91 9876543210)" />
+        <span class="error-msg" data-for="phone"></span>
+      </div>
+      <div class="form-group">
+        <label for="message">Your Message</label>
+        <textarea id="message" name="message" rows="6" required placeholder="Write your message here...">{{ prefill }}</textarea>
+        <span class="error-msg" data-for="message"></span>
+      </div>
+      <input type="hidden" name="quote_items" id="quoteItems" value="[]" />
+      <button type="submit" class="submit-btn" id="contactSubmit">Send Message</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/contact.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% for n in "12345" %}
+{% if score >= forloop.counter %}
+<i class="fa-solid fa-star"></i>
+{% elif score > forloop.counter0 %}
+<i class="fa-solid fa-star-half-stroke"></i>
+{% else %}
+<i class="fa-regular fa-star"></i>
+{% endif %}
+{% endfor %}

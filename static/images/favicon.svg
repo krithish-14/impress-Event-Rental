@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="12" fill="#0D4A3E"/>
+  <polygon points="32,12 38,22 32,32 26,22" fill="#C9973A"/>
+  <text x="32" y="50" text-anchor="middle" font-family="Jost, sans-serif" font-size="14" font-weight="700" fill="#E8BD4F">ER</text>
+</svg>

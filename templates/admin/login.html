@@ -1,0 +1,81 @@
+{% extends "admin/base_site.html" %}
+{% load static i18n %}
+
+{% block title %}Admin Portal | Event Rental{% endblock %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/login.css' %}">{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var input = document.getElementById("id_password");
+      if (!input) return;
+      var wrap = document.createElement("div");
+      wrap.className = "er-password-wrap";
+      input.parentNode.insertBefore(wrap, input);
+      wrap.appendChild(input);
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "er-password-toggle";
+      btn.setAttribute("aria-label", "Show password");
+      btn.textContent = "Show";
+      btn.addEventListener("click", function () {
+        var show = input.type === "password";
+        input.type = show ? "text" : "password";
+        btn.textContent = show ? "Hide" : "Show";
+        btn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+      });
+      wrap.appendChild(btn);
+    });
+  </script>
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} login{% endblock %}
+{% block usertools %}{% endblock %}
+{% block nav-global %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+{% block content_title %}{% endblock %}
+{% block nav-breadcrumbs %}{% endblock %}
+
+{% block branding %}{% endblock %}
+
+{% block content %}
+{% if form.errors and not form.non_field_errors %}
+<p class="errornote">Please correct the error below.</p>
+{% endif %}
+{% if form.non_field_errors %}
+  {% for error in form.non_field_errors %}
+  <p class="errornote">{{ error }}</p>
+  {% endfor %}
+{% endif %}
+
+<div id="content-main">
+  <div class="er-login-brand">
+    <img src="{% static 'images/event-rental-logo.png' %}" alt="Event Rental" />
+    <h1>Admin Portal</h1>
+    <p>Sign in to manage Event Rental</p>
+  </div>
+  {% if user.is_authenticated %}
+  <p class="errornote">
+    You are signed in as {{ username }}, but this account cannot open the admin portal.
+  </p>
+  {% endif %}
+  <form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
+    <div class="form-row">
+      {{ form.username.errors }}
+      <label for="id_username">Username</label>
+      {{ form.username }}
+    </div>
+    <div class="form-row">
+      {{ form.password.errors }}
+      <label for="id_password">Password</label>
+      {{ form.password }}
+      <input type="hidden" name="next" value="{{ next }}">
+    </div>
+    <div class="submit-row">
+      <input type="submit" value="Sign in">
+    </div>
+  </form>
+</div>
+{% endblock %}

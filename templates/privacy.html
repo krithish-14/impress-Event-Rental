@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="nlv2_bredcrumb_wrapper">
+  <div class="banner-content"><h1>Privacy Policy</h1></div>
+</section>
+<section class="iss-policy-section">
+  <div class="container">
+    <div class="iss-policy-card">
+      <h2 class="iss-policy-title">Privacy Policy</h2>
+      <p>
+        At <strong>{{ site_name }}</strong>, we value your privacy and are
+        committed to protecting the information you share with us. This Privacy Policy
+        explains how we collect, use, and safeguard your personal information when you
+        visit our website or engage with our services.
+      </p>
+      <div class="iss-policy-block">
+        <h4>Information We Collect</h4>
+        <p>We may collect the following information:</p>
+        <ul class="iss-policy-list">
+          <li>Name</li>
+          <li>Phone Number</li>
+          <li>Email Address</li>
+          <li>Company or Organization Details</li>
+          <li>Event Information and Requirements</li>
+          <li>Any information voluntarily submitted through contact forms, inquiries, or service requests.</li>
+        </ul>
+      </div>
+      <div class="iss-policy-block">
+        <h4>How We Use Your Information</h4>
+        <p>We use the information collected to:</p>
+        <ul class="iss-policy-list">
+          <li>Respond to inquiries and service requests.</li>
+          <li>Provide quotations and proposals.</li>
+          <li>Manage bookings and event requirements.</li>
+          <li>Improve our services and customer experience.</li>
+          <li>Send important updates regarding our services.</li>
+          <li>Comply with legal and regulatory obligations.</li>
+        </ul>
+      </div>
+      <div class="iss-policy-block">
+        <h4>Information Sharing</h4>
+        <p>We do not sell, rent, or trade your personal information to third parties.</p>
+        <p>Information may be shared with trusted service providers, logistics partners, or event partners only when necessary to fulfill service requirements.</p>
+      </div>
+      <div class="iss-policy-block">
+        <h4>Data Security</h4>
+        <p>We implement reasonable security measures to protect your personal information from unauthorized access, misuse, disclosure, or alteration.</p>
+      </div>
+      <div class="iss-policy-block">
+        <h4>Cookies</h4>
+        <p>Our website may use cookies and similar technologies to improve website functionality and user experience.</p>
+      </div>
+      <div class="iss-policy-block iss-policy-contact">
+        <h4>Contact Information</h4>
+        <p><strong>{{ site_name }}</strong><br />{{ site_tagline }}</p>
+        <a href="mailto:{{ site_email }}">{{ site_email }}</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

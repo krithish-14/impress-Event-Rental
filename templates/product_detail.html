@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ product.name }} — {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="pdp-page">
+  <div class="pdp-wrap">
+    <nav class="pdp-breadcrumb" aria-label="Breadcrumb">
+      <a href="{% url 'home' %}">Home</a>
+      <span class="sep">›</span>
+      <a href="{{ product.category.get_absolute_url }}">{{ product.category.nav_label }} Collection</a>
+      <span class="sep">›</span>
+      <span>{{ product.name }}</span>
+    </nav>
+
+    <div class="pdp-card">
+    <section class="pdp-layout">
+      <div class="pdp-gallery">
+        <div class="pdp-main-img" id="pdpMainImg">
+          <img src="{{ product.image_url }}" alt="{{ product.name }}" />
+        </div>
+        <p class="pdp-zoom-hint">Click image to see full view</p>
+        <p class="pdp-desc">{{ product.description }}</p>
+        <div class="pdp-services">
+          <div class="pdp-service"><i class="fa-solid fa-truck"></i> Event delivery</div>
+          <div class="pdp-service"><i class="fa-solid fa-rotate-left"></i> Pickup included</div>
+          <div class="pdp-service"><i class="fa-solid fa-shield-halved"></i> Premium quality</div>
+          <div class="pdp-service"><i class="fa-solid fa-headset"></i> Quote support</div>
+        </div>
+        {% if variants %}
+        <div class="pdp-thumbs">
+          {% for item in variants %}
+          <a href="{{ item.get_absolute_url }}" class="pdp-thumb{% if item.slug == product.slug %} is-active{% endif %}" title="{{ item.name }}">
+            <img src="{{ item.image_url }}" alt="{{ item.name }}" />
+          </a>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="pdp-info">
+        <div class="pdp-kicker">{{ product.category.nav_label }} Collection</div>
+        <h1 class="pdp-title">{{ product.name }}</h1>
+        <div class="pdp-rating">
+          {% if review_summary.total %}
+          <span class="pdp-rating-score">{{ review_summary.average }}</span>
+          <span class="pdp-rating-stars" aria-hidden="true">{% include "reviews_stars.html" with score=review_summary.average %}</span>
+          <a href="#reviews">{{ review_summary.total }} review{{ review_summary.total|pluralize }}</a>
+          {% else %}
+          <span>No reviews yet</span>
+          {% endif %}
+        </div>
+        <div class="pdp-divider"></div>
+        <div class="pdp-specs">
+          {% if product.size %}
+          <div class="pdp-spec">
+            <label>Size</label>
+            <strong>{{ product.size }}</strong>
+          </div>
+          {% endif %}
+          {% if product.style %}
+          <div class="pdp-spec">
+            <label>Style</label>
+            <strong>{{ product.style }}</strong>
+          </div>
+          {% endif %}
+          <div class="pdp-spec">
+            <label>Category</label>
+            <strong>{{ product.category.nav_label }}</strong>
+          </div>
+        </div>
+        <div class="pdp-buy">
+          <div class="pdp-stock">In stock</div>
+          <div class="pdp-qty-row">
+            <label for="pdp-qty">Quantity</label>
+            <div class="pdp-qty-stepper" data-min="1" data-max="{{ max_qty }}">
+              <button type="button" class="pdp-qty-btn" id="pdpQtyMinus" aria-label="Decrease quantity">−</button>
+              <input
+                id="pdp-qty"
+                class="pdp-qty-input"
+                type="number"
+                inputmode="numeric"
+                min="1"
+                max="{{ max_qty }}"
+                step="1"
+                value="1"
+              />
+              <button type="button" class="pdp-qty-btn" id="pdpQtyPlus" aria-label="Increase quantity">+</button>
+            </div>
+          </div>
+          <div class="pdp-actions">
+            <button class="pdp-btn pdp-btn-quote" type="button" id="pdpCartBtn">
+              <i class="fa-solid fa-bag-shopping"></i> Add to Cart
+            </button>
+            <button class="pdp-btn pdp-btn-wish" type="button" id="pdpWishBtn">
+              <i class="fa-regular fa-heart"></i> Add to Wishlist
+            </button>
+            <a class="pdp-btn pdp-btn-whatsapp" id="pdpWhatsappBtn" href="https://wa.me/{{ site_whatsapp }}" target="_blank" rel="noreferrer">
+              <i class="fa-brands fa-whatsapp"></i>
+              WhatsApp Enquiry
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+    {% include "reviews.html" %}
+    </div>
+
+    {% if review_schema_json %}
+    <script type="application/ld+json">{{ review_schema_json }}</script>
+    {% endif %}
+
+    {% if related %}
+    <section class="pdp-related">
+      <h2>More from this collection</h2>
+      <div class="pdp-related-grid">
+        {% for item in related %}
+        <a href="{{ item.get_absolute_url }}" class="pdp-related-card">
+          <img src="{{ item.image_url }}" alt="{{ item.name }}" />
+          <h3>{{ item.name }}</h3>
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+  </div>
+
+  <div class="pdp-lightbox" id="pdpLightbox" hidden>
+    <button type="button" class="pdp-lightbox-close" id="pdpLightboxClose" aria-label="Close">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <img src="{{ product.image_url }}" alt="{{ product.name }}" />
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  window.EVENT_RENTAL_PDP = {
+    slug: "{{ product.slug|escapejs }}",
+    name: "{{ product.name|escapejs }}",
+    image: "{{ product.image_url|escapejs }}",
+    url: "{{ product.get_absolute_url|escapejs }}",
+    category: "{{ product.category.nav_label|escapejs }}",
+    whatsapp: "{{ site_whatsapp }}",
+    contactUrl: "{% url 'contact' %}"
+  };
+</script>
+<script src="{% static 'js/product.js' %}?v=12"></script>
+{% endblock %}

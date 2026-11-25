@@ -1,0 +1,162 @@
+<section class="pdp-reviews" id="reviews">
+  <h2>Customer reviews</h2>
+  {% if messages %}
+  <div class="pdp-review-alerts">
+    {% for message in messages %}
+    <p class="pdp-review-alert pdp-review-alert-{{ message.tags }}" data-autohide="1">{{ message }}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if review_summary.total %}
+  <div class="pdp-review-summary">
+    <div>
+      <strong class="pdp-review-average">{{ review_summary.average }}</strong>
+      <div class="pdp-rating-stars" aria-hidden="true">{% include "reviews_stars.html" with score=review_summary.average %}</div>
+      <p>{{ review_summary.total }} published review{{ review_summary.total|pluralize }}</p>
+    </div>
+    <div class="pdp-bars">
+      {% for row in review_summary.rows %}
+      <div class="pdp-bar">
+        <span>{{ row.stars }} star</span>
+        <span class="pdp-bar-track"><span style="width: {{ row.percent }}%"></span></span>
+        <span>{{ row.count }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% else %}
+  <p class="pdp-review-empty">No reviews yet. Be the first to review this product.</p>
+  {% endif %}
+
+  <div class="pdp-review-split">
+  <div class="pdp-review-compose">
+  <form class="pdp-review-form" method="post" action="{% url 'review_submit' product.slug %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <h3>Write a review</h3>
+    <div class="pdp-field">
+      <span class="pdp-field-label" id="rating-label">Your rating</span>
+      <div class="pdp-star-picker" role="radiogroup" aria-labelledby="rating-label">
+        {% include "reviews_star_input.html" with prefix="new" %}
+      </div>
+    </div>
+    <div class="pdp-field">
+      <label for="review-body">Your review</label>
+      <textarea id="review-body" name="body" maxlength="2000" required placeholder="How did this product work for your event?"></textarea>
+    </div>
+    <div class="pdp-field">
+      <span class="pdp-field-label" id="photo-label">Photos, optional, up to 3</span>
+      <div class="pdp-upload">
+        <input id="review-photos" class="pdp-upload-input" type="file" name="photos" accept="image/jpeg,image/png,image/webp" multiple aria-labelledby="photo-label" />
+        <label class="pdp-upload-btn" for="review-photos"><i class="fa-solid fa-image" aria-hidden="true"></i> Upload image</label>
+        <span class="pdp-upload-name" data-empty="No image selected">No image selected</span>
+      </div>
+    </div>
+    {% if user.is_authenticated %}
+    <button type="submit" class="pdp-review-submit">Submit review</button>
+    {% else %}
+    <a class="pdp-review-submit" href="{% url 'login' %}?next={{ request.path }}%23reviews">Log in to submit your review</a>
+    {% endif %}
+  </form>
+  </div>
+
+  <div class="pdp-review-feed">
+  {% if review_summary.total %}
+  <form class="pdp-review-sort" method="get" action="{{ product.get_absolute_url }}#reviews">
+    <label for="review_sort">Sort</label>
+    <select id="review_sort" name="review_sort" onchange="this.form.submit()">
+      <option value="newest" {% if review_sort == "newest" %}selected{% endif %}>Newest</option>
+      <option value="highest" {% if review_sort == "highest" %}selected{% endif %}>Highest rating</option>
+      <option value="lowest" {% if review_sort == "lowest" %}selected{% endif %}>Lowest rating</option>
+      <option value="helpful" {% if review_sort == "helpful" %}selected{% endif %}>Most helpful</option>
+    </select>
+  </form>
+  <div class="pdp-review-carousel" data-review-carousel>
+    <button type="button" class="pdp-review-arrow" data-review-prev aria-label="Previous review">&#8249;</button>
+    <div class="pdp-review-slides">
+      {% for review in review_page %}
+      <div class="pdp-review-slide">{% include "reviews_card.html" %}</div>
+      {% endfor %}
+    </div>
+    <button type="button" class="pdp-review-arrow" data-review-next aria-label="Next review">&#8250;</button>
+  </div>
+  {% endif %}
+  </div>
+  </div>
+</section>
+<script>
+  document.querySelectorAll(".pdp-star-picker").forEach(function (picker) {
+    var choices = Array.prototype.slice.call(picker.querySelectorAll(".pdp-star-choice"));
+    function paint(count) {
+      choices.forEach(function (choice, index) {
+        choice.classList.toggle("is-on", index < count);
+      });
+    }
+    function selected() {
+      var checked = picker.querySelector("input:checked");
+      return checked ? Number(checked.value) : 0;
+    }
+    choices.forEach(function (choice) {
+      choice.addEventListener("mouseenter", function () {
+        paint(Number(choice.querySelector("input").value));
+      });
+      choice.addEventListener("mouseleave", function () {
+        paint(selected());
+      });
+      choice.querySelector("input").addEventListener("change", function () {
+        paint(Number(this.value));
+      });
+    });
+    paint(selected());
+  });
+  document.querySelectorAll("[data-review-carousel]").forEach(function (carousel) {
+    var slides = Array.prototype.slice.call(carousel.querySelectorAll(".pdp-review-slide"));
+    var prev = carousel.querySelector("[data-review-prev]");
+    var next = carousel.querySelector("[data-review-next]");
+    var index = 0;
+    function show(nextIndex) {
+      index = nextIndex;
+      slides.forEach(function (slide, slideIndex) {
+        slide.classList.toggle("is-active", slideIndex === index);
+      });
+      if (prev) prev.disabled = index === 0;
+      if (next) next.disabled = index === slides.length - 1;
+    }
+    if (prev) prev.addEventListener("click", function () { if (index > 0) show(index - 1); });
+    if (next) next.addEventListener("click", function () { if (index < slides.length - 1) show(index + 1); });
+    if (slides.length) show(0);
+    if (slides.length < 2) {
+      if (prev) prev.hidden = true;
+      if (next) next.hidden = true;
+    }
+  });
+  document.querySelectorAll(".pdp-review-alert[data-autohide]").forEach(function (alert) {
+    window.setTimeout(function () {
+      alert.classList.add("is-hiding");
+      window.setTimeout(function () {
+        var box = alert.parentElement;
+        alert.remove();
+        if (box && !box.children.length) box.remove();
+      }, 400);
+    }, alert.classList.contains("pdp-review-alert-error") ? 7000 : 4000);
+  });
+  document.querySelectorAll("[data-edit-review]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      var form = document.getElementById("edit-review-" + button.getAttribute("data-edit-review"));
+      if (form) form.hidden = !form.hidden;
+    });
+  });
+  document.querySelectorAll(".pdp-upload-input").forEach(function (input) {
+    input.addEventListener("change", function () {
+      var name = input.parentElement.querySelector(".pdp-upload-name");
+      if (!name) return;
+      if (!input.files || !input.files.length) {
+        name.textContent = name.getAttribute("data-empty");
+        return;
+      }
+      name.textContent = Array.prototype.map.call(input.files, function (file) {
+        return file.name;
+      }).join(", ");
+    });
+  });
+</script>

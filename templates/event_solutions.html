@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Event Solutions — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="nlv2_bredcrumb_wrapper">
+  <div class="banner-content"><h1>Event Solutions</h1></div>
+</section>
+
+{% for event in solutions %}
+<section class="wedding-section">
+  {% if event.reverse %}
+    <div class="wedding-image">
+      <img src="{{ event.img }}" alt="{{ event.alt }}" />
+    </div>
+    <div class="wedding-content2">
+      <h2>{{ event.title }}</h2>
+      <h5>{{ event.subtitle }}</h5>
+      <p>{{ event.text }}</p>
+      <a href="{% url 'gallery' %}" class="btn-gallery">view Collection</a>
+    </div>
+  {% else %}
+    <div class="wedding-content">
+      <h2>{{ event.title }}</h2>
+      <h5>{{ event.subtitle }}</h5>
+      <p>{{ event.text }}</p>
+      <a href="{% url 'gallery' %}" class="btn-gallery">view Collection</a>
+    </div>
+    <div class="wedding-image">
+      <img src="{{ event.img }}" alt="{{ event.alt }}" />
+    </div>
+  {% endif %}
+</section>
+{% endfor %}
+{% endblock %}

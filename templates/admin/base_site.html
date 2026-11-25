@@ -1,0 +1,50 @@
+{% extends "admin/base.html" %}
+{% load static i18n %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:"Event Rental" }}{% endblock %}
+
+{% block dark-mode-vars %}
+  <link rel="stylesheet" href="{% static 'admin/css/dark_mode.css' %}">
+  <script src="{% static 'js/admin_theme.js' %}"></script>
+{% endblock %}
+
+{% block extrahead %}
+  <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'css/admin.css' %}" />
+  <script src="{% static 'js/admin_history.js' %}" defer></script>
+  <script src="{% static 'js/admin_changelist_actions.js' %}" defer></script>
+{% endblock %}
+
+{% block header %}
+  {% if not is_popup %}
+  <header id="header" class="er-topbar">
+    <a href="{% url 'admin:index' %}" class="er-brand">
+      <img src="{% static 'images/event-rental-logo.png' %}" alt="Event Rental" />
+      <span>Admin Portal</span>
+    </a>
+    {% if has_permission %}
+    <nav class="er-topnav" aria-label="Admin">
+      <a href="{% url 'admin:index' %}"{% if request.resolver_match.url_name == "index" %} class="is-active"{% endif %}>Home</a>
+      <a href="{% url 'admin:catalog_inquiry_changelist' %}"{% if request.resolver_match.url_name == "inquiry_changelist" or request.resolver_match.url_name == "inquiry_change" %} class="is-active"{% endif %}>
+        Quotes
+        {% if unread_quotes %}<em>{{ unread_quotes }}</em>{% endif %}
+      </a>
+    </nav>
+    <div class="er-top-actions">
+      {% include "admin/color_theme_toggle.html" %}
+      <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+      </form>
+    </div>
+    {% endif %}
+  </header>
+  {% endif %}
+{% endblock %}
+
+{% block branding %}{% endblock %}
+{% block usertools %}{% endblock %}
+{% block nav-global %}{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Notification — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="nlv2_bredcrumb_wrapper">
+  <div class="banner-content"><h1>Notification</h1></div>
+</section>
+
+<section class="bag-page">
+  <div class="bag-wrap">
+    <div class="bag-empty">
+      <i class="fa-regular fa-bell"></i>
+      <h2>No notifications yet</h2>
+      <p>Quote updates and account alerts will appear here.</p>
+      <a class="card-btn" href="{% url 'collection' 'chairs' %}">Browse Collections</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Forgot password — {{ site_name }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}" />
+{% endblock %}
+
+{% block content %}
+<section class="nlv2_bredcrumb_wrapper">
+  <div class="banner-content"><h1>Forgot password</h1></div>
+</section>
+
+<div class="auth-page">
+  <div class="auth-card">
+    <h2>Reset your password</h2>
+    <p class="auth-lead">Enter the mobile number or email you used to sign up. We will send a 6-digit verification code.</p>
+    {% if error %}
+    <div class="alert alert-error" style="margin-bottom: 18px;">{{ error }}</div>
+    {% endif %}
+    <div class="auth-method-tabs" role="tablist">
+      <button type="button" class="auth-method-tab{% if login_method != 'email' %} is-active{% endif %}" data-method="phone">Phone</button>
+      <button type="button" class="auth-method-tab{% if login_method == 'email' %} is-active{% endif %}" data-method="email">Email</button>
+    </div>
+    <form class="auth-form contact-form" method="post" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="login_method" id="loginMethod" value="{{ login_method|default:'phone' }}" />
+      <div class="form-group" id="phoneGroup" {% if login_method == 'email' %}hidden{% endif %}>
+        <label for="phone">Mobile number</label>
+        <input type="tel" id="phone" name="phone" inputmode="numeric" autocomplete="tel" maxlength="15" placeholder="10-digit mobile number" value="{{ phone }}" {% if login_method != 'email' %}required{% endif %} />
+      </div>
+      <div class="form-group" id="emailGroup" {% if login_method != 'email' %}hidden{% endif %}>
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email" autocomplete="email" placeholder="Enter your email address" value="{{ email }}" {% if login_method == 'email' %}required{% endif %} />
+      </div>
+      <button type="submit" class="submit-btn">Send verification code</button>
+    </form>
+    <div class="auth-links">
+      Remembered it? <a href="{% url 'login' %}">Back to login</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/auth-method.js' %}"></script>
+{% endblock %}

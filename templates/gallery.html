@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Gallery — {{ site_name }}{% endblock %}
+
+{% block extra_head %}
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+<section class="nlv2_bredcrumb_wrapper">
+  <div class="banner-content"><h1>Gallery</h1></div>
+</section>
+
+<section class="gallery-section" id="gallerySection">
+  <div class="gallery-mosaic">
+    {% for cat in categories %}
+    <a
+      href="{% url 'collection' cat.slug %}"
+      class="gallery-tile{% if forloop.first %} gallery-tile--wide{% endif %}"
+    >
+      <img src="{{ cat.image_url }}" alt="{{ cat.name }}" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}" />
+      <span class="gallery-tile-title">{{ cat.name }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

@@ -1,11 +1,25 @@
 from pathlib import Path
 import os
 
+import dj_database_url
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "django-insecure-event-rental-dev-key-change-in-production"
-DEBUG = True
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY",
+    "django-insecure-event-rental-dev-key-change-in-production",
+)
+DEBUG = os.environ.get("DEBUG", "True").lower() in {"1", "true", "yes"}
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+    if host.strip()
+]
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
+]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -19,6 +33,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -48,14 +63,17 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("POSTGRES_DB", "event_rental"),
-        "USER": os.environ.get("POSTGRES_USER", "eventrental"),
-        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "eventrental"),
-        "HOST": os.environ.get("POSTGRES_HOST", "127.0.0.1"),
-        "PORT": os.environ.get("POSTGRES_PORT", "5433"),
-    }
+    "default": dj_database_url.config(
+        default=(
+            f"postgres://{os.environ.get('POSTGRES_USER', 'eventrental')}:"
+            f"{os.environ.get('POSTGRES_PASSWORD', 'eventrental')}@"
+            f"{os.environ.get('POSTGRES_HOST', '127.0.0.1')}:"
+            f"{os.environ.get('POSTGRES_PORT', '5433')}/"
+            f"{os.environ.get('POSTGRES_DB', 'event_rental')}"
+        ),
+        conn_max_age=600,
+        ssl_require=os.environ.get("DATABASE_SSL", "false").lower() in {"1", "true", "yes"},
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -73,9 +91,22 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

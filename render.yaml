@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: impress-event-rental
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python scripts/start.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.8"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: DATABASE_SSL
+        value: "true"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: impress-event-rental-db
+          property: connectionString
+
+databases:
+  - name: impress-event-rental-db
+    plan: free
+    databaseName: event_rental
+    user: eventrental

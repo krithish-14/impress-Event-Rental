@@ -9,17 +9,37 @@ SECRET_KEY = os.environ.get(
     "SECRET_KEY",
     "django-insecure-event-rental-dev-key-change-in-production",
 )
-DEBUG = os.environ.get("DEBUG", "True").lower() in {"1", "true", "yes"}
+IS_RENDER = bool(
+    os.environ.get("RENDER") or os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+)
+DEBUG = os.environ.get("DEBUG", "False" if IS_RENDER else "True").lower() in {
+    "1",
+    "true",
+    "yes",
+}
 ALLOWED_HOSTS = [
     host.strip()
     for host in os.environ.get("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
     if host.strip()
 ]
+render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME", "").strip()
+if render_host and render_host not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(render_host)
+if ".onrender.com" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(".onrender.com")
+
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
     if origin.strip()
 ]
+for origin in (
+    f"https://{render_host}" if render_host else "",
+    "https://impress-event-rental.onrender.com",
+):
+    if origin and origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(origin)
+
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -62,6 +82,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+_has_database_url = bool(os.environ.get("DATABASE_URL", "").strip())
+_ssl_default = "true" if (IS_RENDER or _has_database_url) else "false"
 DATABASES = {
     "default": dj_database_url.config(
         default=(
@@ -72,7 +94,8 @@ DATABASES = {
             f"{os.environ.get('POSTGRES_DB', 'event_rental')}"
         ),
         conn_max_age=600,
-        ssl_require=os.environ.get("DATABASE_SSL", "false").lower() in {"1", "true", "yes"},
+        ssl_require=os.environ.get("DATABASE_SSL", _ssl_default).lower()
+        in {"1", "true", "yes"},
     )
 }
 

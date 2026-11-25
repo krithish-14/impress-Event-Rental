@@ -139,9 +139,19 @@ class Command(BaseCommand):
         Product.objects.exclude(slug__in=keep_product_slugs).delete()
 
         User = get_user_model()
-        if not User.objects.filter(username="admin").exists():
-            User.objects.create_superuser("admin", "admin@eventrental.in", "admin123")
-            self.stdout.write(self.style.SUCCESS("Created admin user admin / admin123"))
+        admin_user, created = User.objects.get_or_create(
+            username="admin",
+            defaults={"email": "admin@eventrental.in"},
+        )
+        admin_user.email = admin_user.email or "admin@eventrental.in"
+        admin_user.is_staff = True
+        admin_user.is_superuser = True
+        admin_user.set_password("admin123")
+        admin_user.save()
+        action = "Created" if created else "Updated"
+        self.stdout.write(
+            self.style.SUCCESS(f"{action} admin user admin / admin123")
+        )
 
         self.stdout.write(
             self.style.SUCCESS(

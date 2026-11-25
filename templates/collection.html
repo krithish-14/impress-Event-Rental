@@ -26,7 +26,14 @@
 
       <div class="product-grid grid-cols-4" id="product-grid">
         {% for product in products %}
-        <article class="product-card sofa-card">
+        <article
+          class="product-card sofa-card"
+          data-slug="{{ product.slug }}"
+          data-name="{{ product.name }}"
+          data-image="{{ product.image_url }}"
+          data-url="{{ product.get_absolute_url }}"
+          data-category="{{ product.category.nav_label }}"
+        >
           <button
             type="button"
             class="card-wish-btn"
@@ -39,36 +46,40 @@
           >
             <i class="fa-regular fa-heart"></i>
           </button>
-          <a href="{{ product.get_absolute_url }}" class="product-card-link">
-          <div class="product-img-wrap">
-            <img src="{{ product.image_url }}" alt="{{ product.name }}" />
-          </div>
+          <a href="{{ product.get_absolute_url }}" class="product-card-media">
+            <div class="product-img-wrap">
+              <img src="{{ product.image_url }}" alt="{{ product.name }}" />
+            </div>
+          </a>
           <div class="product-info sofa-info">
             <div class="sofa-card-title-row">
               <span class="sofa-card-badge">{% if product.sort_order < 10 %}0{% endif %}{{ product.sort_order }}</span>
               <h3 class="product-name sofa-name" title="{{ product.name }}">{{ product.name }}</h3>
             </div>
             <div class="sofa-divider"></div>
-            <div class="sofa-meta-grid">
-              {% if product.size %}
-              <div class="sofa-meta-block">
-                <span class="meta-icon-wrap"><i class="fa-solid fa-ruler-combined"></i></span>
-                <div class="meta-text-wrap">
-                  <span class="meta-label">Size:</span>
-                  <span class="meta-value size-value">{{ product.size }}</span>
+            {% if product.size %}
+            <p class="card-size-line">Size: {{ product.size }}</p>
+            {% endif %}
+            <div class="card-shop-actions">
+              <div class="card-shop-row">
+                <div class="card-qty-stepper" role="group" aria-label="Quantity for {{ product.name }}">
+                  <button type="button" class="card-qty-btn" data-qty-delta="-1" aria-label="Decrease quantity">−</button>
+                  <input
+                    type="number"
+                    class="card-qty-input"
+                    value="1"
+                    min="1"
+                    max="20"
+                    inputmode="numeric"
+                    aria-label="Quantity"
+                  />
+                  <button type="button" class="card-qty-btn" data-qty-delta="1" aria-label="Increase quantity">+</button>
                 </div>
+                <button type="button" class="card-add-cart">Add to cart</button>
               </div>
-              {% endif %}
-              <div class="sofa-meta-block">
-                <span class="meta-icon-wrap"><i class="fa-solid fa-cubes"></i></span>
-                <div class="meta-text-wrap">
-                  <span class="meta-label">Quantity:</span>
-                  <span class="meta-value qty-value">{{ product.qty }}</span>
-                </div>
-              </div>
+              <a href="{{ product.get_absolute_url }}" class="card-view-details">View details</a>
             </div>
           </div>
-          </a>
         </article>
         {% empty %}
         <p>No rentals in this collection yet.</p>

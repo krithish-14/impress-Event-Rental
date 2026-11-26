@@ -18,7 +18,7 @@
     <section class="pdp-layout">
       <div class="pdp-gallery">
         <div class="pdp-main-img" id="pdpMainImg">
-          <img src="{{ product.image_url }}" alt="{{ product.name }}" />
+          <img src="{{ product.photo_url }}" alt="{{ product.name }}" />
         </div>
         <p class="pdp-zoom-hint">Click image to see full view</p>
         <p class="pdp-desc">{{ product.description }}</p>
@@ -32,7 +32,7 @@
         <div class="pdp-thumbs">
           {% for item in variants %}
           <a href="{{ item.get_absolute_url }}" class="pdp-thumb{% if item.slug == product.slug %} is-active{% endif %}" title="{{ item.name }}">
-            <img src="{{ item.image_url }}" alt="{{ item.name }}" />
+            <img src="{{ item.photo_url }}" alt="{{ item.name }}" />
           </a>
           {% endfor %}
         </div>
@@ -111,7 +111,7 @@
       <div class="pdp-related-grid">
         {% for item in related %}
         <a href="{{ item.get_absolute_url }}" class="pdp-related-card">
-          <img src="{{ item.image_url }}" alt="{{ item.name }}" />
+          <img src="{{ item.photo_url }}" alt="{{ item.name }}" />
           <h3>{{ item.name }}</h3>
         </a>
         {% endfor %}
@@ -124,7 +124,7 @@
     <button type="button" class="pdp-lightbox-close" id="pdpLightboxClose" aria-label="Close">
       <i class="fa-solid fa-xmark"></i>
     </button>
-    <img src="{{ product.image_url }}" alt="{{ product.name }}" />
+    <img src="{{ product.photo_url }}" alt="{{ product.name }}" />
   </div>
 </div>
 {% endblock %}
@@ -134,7 +134,7 @@
   window.EVENT_RENTAL_PDP = {
     slug: "{{ product.slug|escapejs }}",
     name: "{{ product.name|escapejs }}",
-    image: "{{ product.image_url|escapejs }}",
+    image: "{{ product.photo_url|escapejs }}",
     url: "{{ product.get_absolute_url|escapejs }}",
     category: "{{ product.category.nav_label|escapejs }}",
     whatsapp: "{{ site_whatsapp }}",

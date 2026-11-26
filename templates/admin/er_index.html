@@ -12,10 +12,14 @@
 <div class="er-shell">
   <header class="er-pagehead">
     <h1>Admin Dashboard</h1>
-    <p>Add or update products, watch live stock, and review customer quotes.</p>
+    <p>Manage brands, collections, stock, and customer quotes from one portal.</p>
   </header>
 
   <section class="er-stats" aria-label="Overview">
+    <div class="er-stat">
+      <span>Brands</span>
+      <strong>{{ er_brands }}</strong>
+    </div>
     <div class="er-stat">
       <span>Collections</span>
       <strong>{{ er_collections }}</strong>
@@ -43,6 +47,30 @@
   </section>
 
   <div class="er-layout">
+    <section class="er-card">
+      <div class="er-card-head">
+        <div>
+          <h2>Brands</h2>
+          <p>Manage Event Rental, Signature Seating, and future sub-brands here.</p>
+        </div>
+        <a class="er-btn" href="{% url 'admin:catalog_brand_add' %}">Add brand</a>
+      </div>
+      <div class="er-linklist">
+        <a class="er-linkrow" href="{% url 'admin:catalog_brand_changelist' %}">
+          <strong>All brands</strong>
+          <span>{{ er_brands }} brand{{ er_brands|pluralize }} in this dashboard</span>
+        </a>
+        {% for card in er_brand_cards %}
+        <a class="er-linkrow" href="{% url 'admin:catalog_category_changelist' %}?brand__id__exact={{ card.obj.pk }}">
+          <strong>{{ card.obj.name }}</strong>
+          <span>{{ card.collections }} collections · {{ card.products }} products · {{ card.active }} live</span>
+        </a>
+        {% empty %}
+        <p class="er-empty">No brands yet. Add Event Rental or Signature Seating to get started.</p>
+        {% endfor %}
+      </div>
+    </section>
+
     <section class="er-card">
       <div class="er-card-head">
         <div>

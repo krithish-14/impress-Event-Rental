@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ brand.name }} — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="nlv2_bredcrumb_wrapper">
+  <div class="banner-content">
+    <h1>{{ brand.name }}</h1>
+  </div>
+</section>
+
+<section class="brand-page">
+  <div class="brand-page-intro">
+    {% if brand.logo_url %}
+    <img class="brand-page-logo" src="{{ brand.logo_url }}" alt="{{ brand.name }}" />
+    {% endif %}
+    {% if brand.tagline %}<p class="brand-page-tagline">{{ brand.tagline }}</p>{% endif %}
+    {% if brand.description %}<p class="brand-page-desc">{{ brand.description }}</p>{% endif %}
+  </div>
+
+  <div class="brand-collections">
+    {% for item in categories %}
+    <article class="brand-collection-card">
+      <a href="{% url 'collection' item.slug %}" class="brand-collection-media">
+        <img src="{{ item.photo_url }}" alt="{{ item.name }}" loading="lazy" />
+      </a>
+      <div class="brand-collection-body">
+        <h2>{{ item.name }}</h2>
+        <p>{{ item.description|default:item.subtitle }}</p>
+        <a class="card-btn" href="{% url 'collection' item.slug %}">
+          View Collection <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </a>
+      </div>
+    </article>
+    {% empty %}
+    <p class="gallery-empty">No collections for this brand yet. Add them from the admin Brands section.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

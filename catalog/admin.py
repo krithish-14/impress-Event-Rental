@@ -10,7 +10,17 @@ from django.utils import timezone
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 
-from .models import Category, CustomerProfile, Inquiry, InquiryItem, Product, Review, ReviewImage, ReviewReport
+from .models import (
+    Brand,
+    Category,
+    CustomerProfile,
+    Inquiry,
+    InquiryItem,
+    Product,
+    Review,
+    ReviewImage,
+    ReviewReport,
+)
 
 LOW_STOCK = 5
 
@@ -30,10 +40,23 @@ class EventRentalAdminSite(admin.AdminSite):
         return ctx
 
     def index(self, request, extra_context=None):
-        products = list(Product.objects.select_related("category"))
+        products = list(Product.objects.select_related("category", "category__brand"))
+        brands = []
+        for brand in Brand.objects.all():
+            brand_products = [p for p in products if p.category.brand_id == brand.id]
+            brands.append(
+                {
+                    "obj": brand,
+                    "collections": Category.objects.filter(brand=brand).count(),
+                    "products": len(brand_products),
+                    "active": sum(1 for p in brand_products if p.is_active),
+                }
+            )
         extra_context = extra_context or {}
         extra_context.update(
             {
+                "er_brands": Brand.objects.count(),
+                "er_brand_cards": brands,
                 "er_collections": Category.objects.count(),
                 "er_products": len(products),
                 "er_active": sum(1 for p in products if p.is_active),
@@ -113,30 +136,135 @@ class QuoteFollowUpFilter(admin.SimpleListFilter):
         return queryset
 
 
-@admin.register(Category, site=site)
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("photo", "name", "nav_label", "product_count", "featured_on_home", "sort_order", "add_product")
-    list_display_links = ("photo", "name")
-    list_editable = ("featured_on_home", "sort_order")
-    list_filter = ("featured_on_home",)
-    show_facets = admin.ShowFacets.ALWAYS
-    search_fields = ("name", "nav_label", "subtitle")
+@admin.register(Brand, site=site)
+class BrandAdmin(admin.ModelAdmin):
+    list_display = (
+        "logo",
+        "name",
+        "short_name",
+        "collection_count",
+        "product_count",
+        "is_primary",
+        "is_active",
+        "sort_order",
+        "manage_collections",
+    )
+    list_display_links = ("logo", "name")
+    list_editable = ("is_primary", "is_active", "sort_order")
+    list_filter = ("is_active", "is_primary")
+    search_fields = ("name", "short_name", "tagline")
     prepopulated_fields = {"slug": ("name",)}
     ordering = ("sort_order", "name")
+    fieldsets = (
+        (
+            "Brand details",
+            {
+                "description": "Sub-brands like Event Rental and Impress Signature Seating share this admin.",
+                "fields": ("name", "short_name", "slug", "tagline"),
+            },
+        ),
+        (
+            "Logo & story",
+            {"fields": ("logo_url", "logo_preview", "description")},
+        ),
+        (
+            "Storefront banner",
+            {
+                "description": "Wide hero banner for the Signature Seating page. Recommended 1920 × 700 px.",
+                "fields": ("banner", "banner_url", "banner_preview"),
+            },
+        ),
+        (
+            "Website display",
+            {"fields": ("is_active", "is_primary", "sort_order")},
+        ),
+    )
+    readonly_fields = ("logo_preview", "banner_preview")
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .annotate(
+                _collection_count=Count("categories", distinct=True),
+                _product_count=Count("categories__products", distinct=True),
+            )
+        )
+
+    @admin.display(description="")
+    def logo(self, obj):
+        if not obj.logo_url:
+            return "—"
+        return format_html('<img src="{}" class="er-thumb" alt="" />', obj.logo_url)
+
+    @admin.display(description="Collections", ordering="_collection_count")
+    def collection_count(self, obj):
+        return obj._collection_count
+
+    @admin.display(description="Products", ordering="_product_count")
+    def product_count(self, obj):
+        return obj._product_count
+
+    @admin.display(description="Preview")
+    def logo_preview(self, obj):
+        if not obj.pk or not obj.logo_url:
+            return "Add a logo URL and save to see a preview."
+        return format_html('<img src="{}" class="er-preview" alt="" />', obj.logo_url)
+
+    @admin.display(description="Banner preview")
+    def banner_preview(self, obj):
+        src = obj.banner_photo_url if getattr(obj, "pk", None) else ""
+        if not src:
+            return "Upload a banner or add a banner link, then save to preview."
+        return format_html(
+            '<img src="{}" class="er-preview" alt="" style="max-width:420px;width:100%;height:auto;" />',
+            src,
+        )
+
+    @admin.display(description="Collections")
+    def manage_collections(self, obj):
+        url = reverse("admin:catalog_category_changelist")
+        return format_html(
+            '<a class="er-add-product" href="{}?brand__id__exact={}">View collections</a>',
+            url,
+            obj.pk,
+        )
+
+
+@admin.register(Category, site=site)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = (
+        "photo",
+        "name",
+        "brand",
+        "nav_label",
+        "product_count",
+        "featured_on_home",
+        "sort_order",
+        "view_products",
+    )
+    list_display_links = ("photo", "name")
+    list_editable = ("featured_on_home", "sort_order")
+    list_filter = ("brand", "featured_on_home")
+    show_facets = admin.ShowFacets.ALWAYS
+    search_fields = ("name", "nav_label", "subtitle", "brand__name")
+    prepopulated_fields = {"slug": ("name",)}
+    ordering = ("brand__sort_order", "sort_order", "name")
+    autocomplete_fields = ("brand",)
     save_on_top = False
     fieldsets = (
         (
             "Collection details",
             {
                 "description": "These names appear in the header, gallery mosaic, and collection pages.",
-                "fields": ("name", "nav_label", "subtitle", "slug"),
+                "fields": ("brand", "name", "nav_label", "subtitle", "slug"),
             },
         ),
         (
             "Photo & icon",
             {
-                "description": "Use a 1600 × 1200 px photo (4:3). It fills the home collection card and the gallery tile.",
-                "fields": ("image_url", "image_preview", "icon"),
+                "description": "Upload any size. Admin auto-converts it to 1200 × 1200 px (white square, product centered).",
+                "fields": ("image", "image_url", "image_preview", "icon"),
             },
         ),
         (
@@ -151,9 +279,10 @@ class CategoryAdmin(admin.ModelAdmin):
 
     @admin.display(description="")
     def photo(self, obj):
-        if not obj.image_url:
+        src = obj.photo_url
+        if not src:
             return "—"
-        return format_html('<img src="{}" class="er-thumb" alt="" />', obj.image_url)
+        return format_html('<img src="{}" class="er-thumb" alt="" />', src)
 
     @admin.display(description="Products", ordering="_product_count")
     def product_count(self, obj):
@@ -161,15 +290,32 @@ class CategoryAdmin(admin.ModelAdmin):
 
     @admin.display(description="Preview")
     def image_preview(self, obj):
-        if not obj.pk or not obj.image_url:
-            return "Add an image URL and save to see a preview."
-        return format_html('<img src="{}" class="er-preview" alt="" />', obj.image_url)
+        src = obj.photo_url if getattr(obj, "pk", None) else ""
+        if src:
+            return format_html(
+                '<div class="er-live-preview" data-er-preview>'
+                '<img class="er-preview" src="{}" alt="" data-er-preview-img />'
+                '<p class="er-preview-hint" data-er-preview-hint hidden>'
+                "Choose a file or paste a link to preview."
+                "</p></div>",
+                src,
+            )
+        return mark_safe(
+            '<div class="er-live-preview" data-er-preview>'
+            '<img class="er-preview" alt="" data-er-preview-img hidden />'
+            '<p class="er-preview-hint" data-er-preview-hint>'
+            "Choose a file or paste a link to preview."
+            "</p></div>"
+        )
 
-    @admin.display(description="Add product")
-    def add_product(self, obj):
-        url = reverse("admin:catalog_product_add")
+    class Media:
+        js = ("js/admin_image_preview.js",)
+
+    @admin.display(description="Products")
+    def view_products(self, obj):
+        url = reverse("admin:catalog_product_changelist")
         return format_html(
-            '<a class="er-add-product" href="{}?category={}">Add product</a>',
+            '<a class="er-add-product" href="{}?category__id__exact={}">View products</a>',
             url,
             obj.pk,
         )
@@ -177,19 +323,33 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product, site=site)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("photo", "name", "category", "qty", "units", "rented_units", "stock_status", "is_active", "sort_order", "view_product", "delete_product")
+    list_display = (
+        "photo",
+        "name",
+        "brand_name",
+        "category",
+        "qty",
+        "units",
+        "rented_units",
+        "stock_status",
+        "is_active",
+        "sort_order",
+        "view_product",
+        "delete_product",
+    )
     list_display_links = ("photo", "name")
-    list_filter = ("category", WebsiteFilter, RentedStatusFilter)
+    list_filter = ("category__brand", "category", WebsiteFilter, RentedStatusFilter)
     show_facets = admin.ShowFacets.ALWAYS
-    search_fields = ("name", "style", "description", "size", "event_name")
+    search_fields = ("name", "style", "description", "size", "event_name", "category__brand__name")
     actions = ("mark_rented", "mark_available")
     prepopulated_fields = {"slug": ("name",)}
     list_per_page = 25
+    autocomplete_fields = ("category",)
     save_on_top = False
     empty_value_display = "—"
 
     class Media:
-        js = ("js/admin_product.js",)
+        js = ("js/admin_product.js", "js/admin_image_preview.js")
 
     fieldsets = (
         (
@@ -216,8 +376,8 @@ class ProductAdmin(admin.ModelAdmin):
         (
             "Photo",
             {
-                "description": "Use a 1200 × 900 px photo (4:3), with the product centered. It fills the product card and the product page.",
-                "fields": ("image_url", "image_preview"),
+                "description": "Upload any size. Admin auto-converts it to 1200 × 1200 px (white square, product centered).",
+                "fields": ("image", "image_url", "image_preview"),
             },
         ),
         (
@@ -233,6 +393,35 @@ class ProductAdmin(admin.ModelAdmin):
         if category_id:
             initial["category"] = category_id
         return initial
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        category_id = request.GET.get("category__id__exact") or request.GET.get(
+            "category"
+        )
+        scoped_category = None
+        if category_id:
+            scoped_category = (
+                Category.objects.select_related("brand")
+                .filter(pk=category_id)
+                .first()
+            )
+        extra_context["scoped_category"] = scoped_category
+        if scoped_category:
+            extra_context["scoped_add_url"] = (
+                reverse("admin:catalog_product_add")
+                + f"?category={scoped_category.pk}"
+            )
+            extra_context["scoped_back_url"] = (
+                reverse("admin:catalog_category_changelist")
+                + (
+                    f"?brand__id__exact={scoped_category.brand_id}"
+                    if scoped_category.brand_id
+                    else ""
+                )
+            )
+            extra_context["title"] = f"Products · {scoped_category.name}"
+        return super().changelist_view(request, extra_context=extra_context)
 
     def get_urls(self):
         info = self.model._meta.app_label, self.model._meta.model_name
@@ -263,11 +452,24 @@ class ProductAdmin(admin.ModelAdmin):
         self.message_user(request, f"{name} was removed from the website.")
         return HttpResponseRedirect(reverse("admin:catalog_product_changelist"))
 
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("category", "category__brand")
+        )
+
     @admin.display(description="")
     def photo(self, obj):
-        if not obj.image_url:
+        src = obj.photo_url
+        if not src:
             return "—"
-        return format_html('<img src="{}" class="er-thumb" alt="" />', obj.image_url)
+        return format_html('<img src="{}" class="er-thumb" alt="" />', src)
+
+    @admin.display(description="Brand", ordering="category__brand__sort_order")
+    def brand_name(self, obj):
+        brand = obj.category.brand if obj.category_id else None
+        return brand.short_name if brand else "—"
 
     @admin.display(description="Units", ordering="qty")
     def units(self, obj):
@@ -302,9 +504,23 @@ class ProductAdmin(admin.ModelAdmin):
 
     @admin.display(description="Preview")
     def image_preview(self, obj):
-        if not obj.pk or not obj.image_url:
-            return "Add an image URL and save to see a preview."
-        return format_html('<img src="{}" class="er-preview" alt="" />', obj.image_url)
+        src = obj.photo_url if getattr(obj, "pk", None) else ""
+        if src:
+            return format_html(
+                '<div class="er-live-preview" data-er-preview>'
+                '<img class="er-preview" src="{}" alt="" data-er-preview-img />'
+                '<p class="er-preview-hint" data-er-preview-hint hidden>'
+                "Choose a file or paste a link to preview."
+                "</p></div>",
+                src,
+            )
+        return mark_safe(
+            '<div class="er-live-preview" data-er-preview>'
+            '<img class="er-preview" alt="" data-er-preview-img hidden />'
+            '<p class="er-preview-hint" data-er-preview-hint>'
+            "Choose a file or paste a link to preview."
+            "</p></div>"
+        )
 
     @admin.display(description="")
     def view_product(self, obj):
@@ -329,13 +545,46 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Inquiry, site=site)
 class InquiryAdmin(admin.ModelAdmin):
-    list_display = ("quote_status", "name", "email", "phone", "quote_lines_display", "created_at", "view_quote", "accept_quote_btn")
+    list_display = (
+        "quote_status",
+        "source_tag",
+        "name",
+        "company_name",
+        "email",
+        "phone",
+        "event_date",
+        "event_days",
+        "quote_lines_display",
+        "created_at",
+        "view_quote",
+        "accept_quote_btn",
+    )
     list_display_links = ("name",)
-    list_filter = ("status", QuoteFollowUpFilter, "created_at")
+    list_filter = ("source", "status", QuoteFollowUpFilter, "created_at")
     show_facets = admin.ShowFacets.ALWAYS
-    search_fields = ("name", "email", "phone", "message", "items__product_name")
+    search_fields = (
+        "name",
+        "company_name",
+        "email",
+        "phone",
+        "message",
+        "items__product_name",
+    )
     date_hierarchy = "created_at"
-    readonly_fields = ("name", "email", "phone", "message", "product", "quantity", "status", "created_at")
+    readonly_fields = (
+        "name",
+        "company_name",
+        "email",
+        "phone",
+        "event_date",
+        "event_days",
+        "source",
+        "message",
+        "product",
+        "quantity",
+        "status",
+        "created_at",
+    )
     ordering = ("-created_at",)
     list_per_page = 20
     actions = ("accept_quotes", "complete_rentals", "mark_read", "mark_unread")
@@ -343,7 +592,18 @@ class InquiryAdmin(admin.ModelAdmin):
     fieldsets = (
         (
             "Customer",
-            {"fields": ("name", "email", "phone", "created_at")},
+            {
+                "fields": (
+                    "name",
+                    "company_name",
+                    "email",
+                    "phone",
+                    "event_date",
+                    "event_days",
+                    "source",
+                    "created_at",
+                )
+            },
         ),
         (
             "Quote",
@@ -415,6 +675,12 @@ class InquiryAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+    @admin.display(description="Source", ordering="source")
+    def source_tag(self, obj):
+        if obj.source == Inquiry.SOURCE_WHATSAPP:
+            return format_html('<span class="er-source is-whatsapp">WhatsApp</span>')
+        return format_html('<span class="er-source is-website">Website</span>')
 
     @admin.display(description="Products & qty")
     def quote_lines_display(self, obj):

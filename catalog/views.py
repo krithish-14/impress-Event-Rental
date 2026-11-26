@@ -1,5 +1,8 @@
 import json
 import re
+from datetime import datetime
+from pathlib import Path
+
 from django.conf import settings
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
@@ -11,33 +14,120 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
+HOME_REEL_CODES = [
+    "Df_j_hIBNcL",
+    "Dfql-7LAJQ2",
+    "DfowU-bDaj4",
+    "DfmXE5Qjt4Q",
+    "DfG8g3qs-Zx",
+    "DezFGuyMQVm",
+    "DeuDLSbSHh4",
+    "DePIcPMSgeC",
+]
+
+
+def _reel_media_url(filename):
+    path = Path(settings.MEDIA_ROOT) / "reels" / filename
+    if not path.is_file():
+        return ""
+    return f"{settings.MEDIA_URL.rstrip('/')}/reels/{filename}"
+
+
+def _home_reels():
+    reels = []
+    for code in HOME_REEL_CODES:
+        video = _reel_media_url(f"{code}.mp4")
+        poster = _reel_media_url(f"{code}.jpg")
+        if not video:
+            continue
+        reels.append(
+            {
+                "code": code,
+                "url": f"https://www.instagram.com/reel/{code}/",
+                "video_url": video,
+                "thumbnail": poster or video,
+            }
+        )
+    return reels
+
 from .auth_views import _normalize_email, _split_name, _valid_email
-from .models import Category, CustomerProfile, Inquiry, InquiryItem, Product, Review
+from .models import Brand, Category, CustomerProfile, Inquiry, InquiryItem, Product, Review
 from .review_service import eligible_items, public_reviews, rating_summary, schema_json
 from .phones import normalize_phone
 
 
+def _primary_brand():
+    return (
+        Brand.objects.filter(is_primary=True, is_active=True).first()
+        or Brand.objects.filter(is_active=True).order_by("sort_order", "name").first()
+    )
+
+
 def home(request):
+    brand = _primary_brand()
     featured = Category.objects.filter(featured_on_home=True)
-    return render(request, "home.html", {"featured_categories": featured})
+    if brand:
+        featured = featured.filter(brand=brand)
+    return render(
+        request,
+        "home.html",
+        {
+            "featured_categories": featured,
+            "active_brand": brand,
+            "home_reels": _home_reels(),
+        },
+    )
+
+
+def brand_page(request, slug):
+    brand = get_object_or_404(Brand, slug=slug, is_active=True)
+    categories = brand.categories.prefetch_related(
+        Prefetch(
+            "products",
+            queryset=Product.objects.filter(is_active=True).order_by(
+                "sort_order", "name"
+            ),
+        )
+    )
+    template = (
+        "signature_seating.html"
+        if brand.slug == "impress-signature-seating"
+        else "brand.html"
+    )
+    return render(
+        request,
+        template,
+        {
+            "brand": brand,
+            "categories": categories,
+        },
+    )
 
 
 def collection(request, slug):
-    category = get_object_or_404(Category, slug=slug)
+    category = get_object_or_404(Category.objects.select_related("brand"), slug=slug)
     products = category.products.filter(is_active=True)
+    sibling_categories = Category.objects.all()
+    if category.brand_id:
+        sibling_categories = sibling_categories.filter(brand=category.brand)
     return render(
         request,
         "collection.html",
         {
             "category": category,
             "products": products,
-            "categories": Category.objects.all(),
+            "categories": sibling_categories,
+            "active_brand": category.brand,
         },
     )
 
 
 def product_detail(request, slug):
-    product = get_object_or_404(Product.objects.select_related("category"), slug=slug, is_active=True)
+    product = get_object_or_404(
+        Product.objects.select_related("category", "category__brand"),
+        slug=slug,
+        is_active=True,
+    )
     related = (
         Product.objects.filter(category=product.category, is_active=True)
         .exclude(pk=product.pk)[:4]
@@ -80,6 +170,8 @@ def product_detail(request, slug):
 
 
 def gallery(request):
+    brand_slug = (request.GET.get("brand") or "").strip()
+    brands = Brand.objects.filter(is_active=True)
     categories = Category.objects.prefetch_related(
         Prefetch(
             "products",
@@ -87,11 +179,19 @@ def gallery(request):
                 "sort_order", "name"
             ),
         )
-    )
+    ).select_related("brand")
+    active_brand = None
+    if brand_slug:
+        active_brand = get_object_or_404(Brand, slug=brand_slug, is_active=True)
+        categories = categories.filter(brand=active_brand)
     return render(
         request,
         "gallery.html",
-        {"categories": categories},
+        {
+            "categories": categories,
+            "gallery_brands": brands,
+            "active_brand": active_brand,
+        },
     )
 
 
@@ -104,6 +204,7 @@ def event_solutions(request):
             "img": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1400&q=80",
             "alt": "Luxury wedding rental setup",
             "reverse": False,
+            "collection_slug": "fancy-tables",
         },
         {
             "title": "Corporate Events",
@@ -112,6 +213,7 @@ def event_solutions(request):
             "img": "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1400&q=80",
             "alt": "Corporate event rental setup",
             "reverse": True,
+            "collection_slug": "arabian-tent",
         },
         {
             "title": "Product Launches",
@@ -120,6 +222,7 @@ def event_solutions(request):
             "img": "https://images.unsplash.com/photo-1492684223060-4260edd08c18?auto=format&fit=crop&w=1400&q=80",
             "alt": "Product launch event rental",
             "reverse": False,
+            "collection_slug": "decorative",
         },
         {
             "title": "Exhibitions",
@@ -128,6 +231,7 @@ def event_solutions(request):
             "img": "https://images.unsplash.com/photo-1505373877841-8d25f7d74e08?auto=format&fit=crop&w=1400&q=80",
             "alt": "Exhibition rental setup",
             "reverse": True,
+            "collection_slug": "mojo-barricade",
         },
         {
             "title": "VIP Lounges",
@@ -136,6 +240,7 @@ def event_solutions(request):
             "img": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1400&q=80",
             "alt": "VIP lounge rental",
             "reverse": False,
+            "collection_slug": "ss-sofa",
         },
         {
             "title": "Special Celebrations",
@@ -144,6 +249,7 @@ def event_solutions(request):
             "img": "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=1400&q=80",
             "alt": "Special celebration rental",
             "reverse": True,
+            "collection_slug": "tables",
         },
     ]
     return render(request, "event_solutions.html", {"solutions": solutions})
@@ -159,6 +265,16 @@ def contact(request):
             prefill += f" (quantity: {quantity})"
         prefill += "."
     return render(request, "contact.html", {"prefill": prefill})
+
+
+def _parse_event_date(value):
+    value = (value or "").strip()
+    if not value:
+        return None, "Event date is required."
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").date(), ""
+    except ValueError:
+        return None, "Please enter a valid event date."
 
 
 @require_POST
@@ -191,6 +307,7 @@ def contact_submit(request):
         email=email,
         phone=phone,
         message=message,
+        source=Inquiry.SOURCE_WEBSITE,
         user=request.user if request.user.is_authenticated else None,
     )
     _save_quote_items(inquiry, request)
@@ -200,6 +317,92 @@ def contact_submit(request):
             "message": f"Thank you for contacting {settings.SITE_NAME}. We will get back to you shortly.",
         }
     )
+
+
+@require_POST
+def cart_quote_submit(request):
+    name = (request.POST.get("name") or "").strip()
+    company_name = (request.POST.get("company_name") or "").strip()
+    email = (request.POST.get("email") or "").strip()
+    phone = (request.POST.get("phone") or "").strip()
+    message = (request.POST.get("message") or "").strip()
+    source_raw = (request.POST.get("source") or Inquiry.SOURCE_WEBSITE).strip().lower()
+    source = (
+        Inquiry.SOURCE_WHATSAPP
+        if source_raw == Inquiry.SOURCE_WHATSAPP
+        else Inquiry.SOURCE_WEBSITE
+    )
+    event_date, event_date_error = _parse_event_date(request.POST.get("event_date"))
+    event_days_raw = (request.POST.get("event_days") or "").strip()
+    errors = {}
+
+    if not name:
+        errors["name"] = "Name is required."
+    if not email:
+        errors["email"] = "Email ID is required."
+    elif not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
+        errors["email"] = "Please enter a valid email address."
+    digits = re.sub(r"[\s.-]", "", phone)
+    if not phone:
+        errors["phone"] = "Phone number is required."
+    elif not re.match(r"^\+?\d{10,14}$", digits):
+        errors["phone"] = "Please enter a valid phone number (e.g. +91 9876543210)."
+    if event_date_error:
+        errors["event_date"] = event_date_error
+    try:
+        event_days = int(event_days_raw)
+        if event_days < 1:
+            raise ValueError
+    except (TypeError, ValueError):
+        event_days = None
+        errors["event_days"] = "Enter how many days the products are needed."
+    if not message:
+        errors["message"] = "Message is required."
+
+    raw_items = (request.POST.get("quote_items") or "").strip()
+    try:
+        payload = json.loads(raw_items) if raw_items else []
+    except json.JSONDecodeError:
+        payload = []
+    if not isinstance(payload, list) or not payload:
+        return JsonResponse(
+            {
+                "success": False,
+                "errors": {},
+                "message": "Your cart is empty. Add products before sending a quote.",
+            },
+            status=400,
+        )
+
+    if errors:
+        return JsonResponse(
+            {
+                "success": False,
+                "errors": errors,
+                "message": "Please correct the highlighted fields.",
+            },
+            status=400,
+        )
+
+    inquiry = Inquiry.objects.create(
+        name=name,
+        company_name=company_name,
+        email=email,
+        phone=phone,
+        event_date=event_date,
+        event_days=event_days,
+        message=message,
+        source=source,
+        user=request.user if request.user.is_authenticated else None,
+    )
+    _save_quote_items(inquiry, request)
+
+    if source == Inquiry.SOURCE_WHATSAPP:
+        msg = "Enquiry saved for the admin team. Opening WhatsApp…"
+    else:
+        msg = "Quote request sent. Our team will contact you shortly."
+
+    return JsonResponse({"success": True, "message": msg, "source": source})
 
 
 def _save_quote_items(inquiry, request):

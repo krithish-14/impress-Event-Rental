@@ -9,5 +9,5 @@ urlpatterns = [
     path("", include("catalog.urls")),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Serve uploaded product/collection photos in local and small deploys.
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

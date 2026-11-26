@@ -17,14 +17,14 @@
       <h2>{{ event.title }}</h2>
       <h5>{{ event.subtitle }}</h5>
       <p>{{ event.text }}</p>
-      <a href="{% url 'gallery' %}" class="btn-gallery">view Collection</a>
+      <a href="{% url 'collection' event.collection_slug %}" class="btn-gallery">view Collection</a>
     </div>
   {% else %}
     <div class="wedding-content">
       <h2>{{ event.title }}</h2>
       <h5>{{ event.subtitle }}</h5>
       <p>{{ event.text }}</p>
-      <a href="{% url 'gallery' %}" class="btn-gallery">view Collection</a>
+      <a href="{% url 'collection' event.collection_slug %}" class="btn-gallery">view Collection</a>
     </div>
     <div class="wedding-image">
       <img src="{{ event.img }}" alt="{{ event.alt }}" />

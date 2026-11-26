@@ -12,15 +12,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
   <link rel="stylesheet" href="{% static 'css/style.css' %}?v=17" />
-  <link rel="stylesheet" href="{% static 'css/gallery.css' %}?v=3" />
+  <link rel="stylesheet" href="{% static 'css/gallery.css' %}?v=5" />
   <link rel="stylesheet" href="{% static 'css/contact.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/product-detail.css' %}?v=12" />
-  <link rel="stylesheet" href="{% static 'css/extras.css' %}?v=13" />
+  <link rel="stylesheet" href="{% static 'css/product-detail.css' %}?v=13" />
+  <link rel="stylesheet" href="{% static 'css/extras.css' %}?v=42" />
   <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=10" />
   {% block extra_head %}{% endblock %}
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
   {% with url_name=request.resolver_match.url_name %}
+  {% block site_header %}
   <header class="impress-header">
     <div class="header-bar">
       <a href="{% url 'home' %}" class="header-logo">
@@ -30,15 +31,28 @@
         <ul class="nav-menu">
           <li class="{% if url_name == 'home' %}active{% endif %}"><a href="{% url 'home' %}">HOME</a></li>
           <li class="separator"></li>
-          <li class="has-dropdown {% if url_name == 'collection' or url_name == 'product_detail' %}active{% endif %}">
+          <li class="has-dropdown has-collections-menu {% if url_name == 'collection' or url_name == 'product_detail' or url_name == 'brand' %}active{% endif %}">
             <a href="#" class="dropdown-toggle" aria-haspopup="true">COLLECTIONS</a>
-            <ul class="submenu" aria-label="Collections submenu">
-              {% for cat in nav_categories %}
-              <li>
-                <a href="{% url 'collection' cat.slug %}" class="{% if category and category.slug == cat.slug %}active{% endif %}">{{ cat.nav_label }}</a>
-              </li>
+            <div class="submenu collections-mega" aria-label="Collections submenu">
+              {% for nav_brand in nav_brands %}
+              <div class="collections-mega-col">
+                <a class="collections-mega-brand" href="{% url 'brand' nav_brand.slug %}">
+                  {{ nav_brand.short_name|default:nav_brand.name }}
+                </a>
+                <ul>
+                  {% for cat in nav_brand.categories.all %}
+                  <li>
+                    <a href="{% url 'collection' cat.slug %}" class="{% if category and category.slug == cat.slug %}active{% endif %}">
+                      {{ cat.nav_label }}
+                    </a>
+                  </li>
+                  {% empty %}
+                  <li><span class="collections-mega-empty">No collections yet</span></li>
+                  {% endfor %}
+                </ul>
+              </div>
               {% endfor %}
-            </ul>
+            </div>
           </li>
           <li class="separator"></li>
           <li class="{% if url_name == 'event_solutions' %}active{% endif %}">
@@ -170,11 +184,18 @@
     <div class="mobile-menu" id="mobileMenu">
       <ul>
         <li><a href="{% url 'home' %}">HOME</a></li>
-        <li class="mobile-dropdown {% if url_name == 'collection' or url_name == 'product_detail' %}active{% endif %}">
+        <li class="mobile-dropdown {% if url_name == 'collection' or url_name == 'product_detail' or url_name == 'brand' %}active{% endif %}">
           <button class="submenu-toggle" type="button" id="mobileCollectionsBtn">COLLECTIONS +</button>
           <ul class="mobile-submenu" id="mobileCollections">
-            {% for cat in nav_categories %}
+            {% for nav_brand in nav_brands %}
+            <li class="mobile-brand-label">
+              <a href="{% url 'brand' nav_brand.slug %}">{{ nav_brand.short_name|default:nav_brand.name }}</a>
+            </li>
+            {% for cat in nav_brand.categories.all %}
             <li><a href="{% url 'collection' cat.slug %}">{{ cat.nav_label }}</a></li>
+            {% empty %}
+            <li><span class="collections-mega-empty">No collections yet</span></li>
+            {% endfor %}
             {% endfor %}
           </ul>
         </li>
@@ -202,6 +223,7 @@
       </ul>
     </div>
   </header>
+  {% endblock %}
   {% endwith %}
 
   <main>
@@ -282,7 +304,7 @@
 
   <script>window.EVENT_RENTAL_AUTHED = {% if user.is_authenticated %}true{% else %}false{% endif %};</script>
   <script src="{% static 'js/store.js' %}?v=11"></script>
-  <script src="{% static 'js/main.js' %}"></script>
+  <script src="{% static 'js/main.js' %}?v=4"></script>
   <script src="{% static 'js/auth.js' %}"></script>
   <script src="{% static 'js/auth-modal.js' %}?v=10"></script>
   {% block extra_js %}{% endblock %}

@@ -13,6 +13,15 @@
 </section>
 
 <section class="gallery-section" id="gallerySection">
+  {% if gallery_brands %}
+  <nav class="gallery-brand-filters" aria-label="Filter gallery by brand">
+    <a href="{% url 'gallery' %}" class="gallery-filter{% if not active_brand %} is-active{% endif %}">All brands</a>
+    {% for brand in gallery_brands %}
+    <a href="{% url 'gallery' %}?brand={{ brand.slug }}" class="gallery-filter{% if active_brand and active_brand.slug == brand.slug %} is-active{% endif %}">{{ brand.short_name|default:brand.name }}</a>
+    {% endfor %}
+  </nav>
+  {% endif %}
+
   <nav class="gallery-filters" aria-label="Filter gallery by collection">
     <button type="button" class="gallery-filter is-active" data-gallery-filter="all">All</button>
     {% for cat in categories %}
@@ -34,10 +43,10 @@
         data-gallery-item
         data-name="{{ product.name }}"
         data-category="{{ cat.name }}"
-        data-image="{{ product.image_url }}"
+        data-image="{{ product.photo_url }}"
       >
         <span class="gallery-tile-media">
-          <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy" />
+          <img src="{{ product.photo_url }}" alt="{{ product.name }}" loading="lazy" />
         </span>
         <span class="gallery-tile-caption">
           <span class="gallery-tile-title">{{ product.name }}</span>

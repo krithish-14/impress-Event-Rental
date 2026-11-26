@@ -28,6 +28,8 @@
     {% if has_permission %}
     <nav class="er-topnav" aria-label="Admin">
       <a href="{% url 'admin:index' %}"{% if request.resolver_match.url_name == "index" %} class="is-active"{% endif %}>Home</a>
+      <a href="{% url 'admin:catalog_brand_changelist' %}"{% if request.resolver_match.url_name == "brand_changelist" or request.resolver_match.url_name == "brand_change" or request.resolver_match.url_name == "brand_add" %} class="is-active"{% endif %}>Brands</a>
+      <a href="{% url 'admin:catalog_category_changelist' %}"{% if request.resolver_match.url_name == "category_changelist" or request.resolver_match.url_name == "category_change" or request.resolver_match.url_name == "category_add" %} class="is-active"{% endif %}>Collections</a>
       <a href="{% url 'admin:catalog_inquiry_changelist' %}"{% if request.resolver_match.url_name == "inquiry_changelist" or request.resolver_match.url_name == "inquiry_change" %} class="is-active"{% endif %}>
         Quotes
         {% if unread_quotes %}<em>{{ unread_quotes }}</em>{% endif %}

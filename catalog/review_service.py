@@ -113,7 +113,7 @@ def review_page(product, sort_key, page_number):
 def schema_json(request, product, summary, reviews):
     if not summary["total"]:
         return ""
-    image = product.image_url or ""
+    image = product.photo_url or ""
     if image.startswith("/"):
         image = request.build_absolute_uri(image)
     data = {

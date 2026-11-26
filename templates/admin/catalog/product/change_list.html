@@ -1,3 +1,41 @@
 {% extends "admin/change_list.html" %}
+{% load i18n admin_urls %}
 
-{% block object-tools %}{% endblock %}
+{% block content_title %}
+  {% if scoped_category %}
+    <h1>Products · {{ scoped_category.name }}</h1>
+  {% else %}
+    {{ block.super }}
+  {% endif %}
+{% endblock %}
+
+{% block object-tools %}
+  <ul class="object-tools">
+    {% if scoped_category %}
+      {% if scoped_back_url %}
+      <li>
+        <a href="{{ scoped_back_url }}" class="er-back-collections">← Back to collections</a>
+      </li>
+      {% endif %}
+      {% if has_add_permission and scoped_add_url %}
+      <li>
+        <a href="{{ scoped_add_url }}" class="addlink">Add product to {{ scoped_category.name }}</a>
+      </li>
+      {% endif %}
+    {% elif has_add_permission %}
+      <li>
+        <a href="{% url opts|admin_urlname:'add' %}" class="addlink">Add product</a>
+      </li>
+    {% endif %}
+  </ul>
+{% endblock %}
+
+{% block result_list %}
+  {% if scoped_category and cl.result_count == 0 %}
+    <p class="er-empty" style="margin: 16px 0 24px;">
+      No products in <strong>{{ scoped_category.name }}</strong> yet.
+      Use <strong>Add product to {{ scoped_category.name }}</strong> above to add the first one.
+    </p>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}

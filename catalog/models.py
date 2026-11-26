@@ -7,6 +7,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 
+from .image_utils import normalize_to_square
+
 
 def _shift_qty_text(qty_text, delta):
     text = qty_text or ""
@@ -17,16 +19,97 @@ def _shift_qty_text(qty_text, delta):
     return text[: match.start()] + str(new_val) + text[match.end() :]
 
 
+class Brand(models.Model):
+    slug = models.SlugField(unique=True, help_text="Used in brand page URLs.")
+    name = models.CharField(max_length=120, help_text="Public brand / sub-brand name.")
+    short_name = models.CharField(
+        max_length=80,
+        blank=True,
+        help_text="Compact label for menus and admin filters.",
+    )
+    tagline = models.CharField(max_length=200, blank=True)
+    description = models.TextField(blank=True)
+    logo_url = models.URLField(blank=True, help_text="Logo shown in admin and brand pages.")
+    banner = models.ImageField(
+        upload_to="brands/banners/",
+        blank=True,
+        help_text="Wide banner for the brand storefront page (recommended 1920 × 700 px).",
+    )
+    banner_url = models.CharField(
+        max_length=500,
+        blank=True,
+        help_text="Optional banner link if no uploaded banner is set.",
+    )
+    is_active = models.BooleanField(
+        default=True,
+        help_text="Uncheck to hide this brand from the public website.",
+    )
+    is_primary = models.BooleanField(
+        default=False,
+        help_text="Primary brand drives the main homepage and header collections.",
+    )
+    sort_order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["sort_order", "name"]
+        verbose_name = "Brand"
+        verbose_name_plural = "Brands"
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def banner_photo_url(self):
+        if self.banner:
+            return self.banner.url
+        return self.banner_url or ""
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        if not self.short_name:
+            self.short_name = self.name
+        super().save(*args, **kwargs)
+        if self.is_primary:
+            Brand.objects.exclude(pk=self.pk).filter(is_primary=True).update(
+                is_primary=False
+            )
+
+    def get_absolute_url(self):
+        return reverse("brand", args=[self.slug])
+
+
 class Category(models.Model):
+    brand = models.ForeignKey(
+        Brand,
+        related_name="categories",
+        on_delete=models.PROTECT,
+        verbose_name="brand",
+        null=True,
+        blank=True,
+        help_text="Which brand / sub-brand this collection belongs to.",
+    )
     slug = models.SlugField(unique=True, help_text="Used in the collection page URL.")
     name = models.CharField(max_length=80, help_text="Public collection name.")
     nav_label = models.CharField(max_length=80, help_text="Short label in the header menu.")
     subtitle = models.CharField(max_length=160, blank=True)
     description = models.TextField(blank=True)
-    image_url = models.URLField(help_text="Photo shown on the gallery mosaic and collection page.")
+    image = models.ImageField(
+        upload_to="collections/",
+        blank=True,
+        help_text="Upload any photo — it is saved as 1200 × 1200 px automatically.",
+    )
+    image_url = models.CharField(
+        max_length=500,
+        blank=True,
+        help_text="Optional image link. Used when no uploaded photo is set.",
+    )
     icon = models.CharField(max_length=80, default="fa-solid fa-chair")
     sort_order = models.PositiveIntegerField(default=0, help_text="Lower numbers appear first.")
-    featured_on_home = models.BooleanField(default=True, help_text="Show this collection in the home slider.")
+    featured_on_home = models.BooleanField(
+        default=True,
+        help_text="Show this collection in the primary brand home slider.",
+    )
 
     class Meta:
         ordering = ["sort_order", "name"]
@@ -34,7 +117,19 @@ class Category(models.Model):
         verbose_name_plural = "Collections"
 
     def __str__(self):
+        if self.brand_id:
+            return f"{self.name} ({self.brand.short_name or self.brand.name})"
         return self.name
+
+    @property
+    def photo_url(self):
+        if self.image:
+            return self.image.url
+        return self.image_url or ""
+
+    def save(self, *args, **kwargs):
+        normalize_to_square(self.image, basename=self.slug or self.name or "collection")
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse("collection", args=[self.slug])
@@ -49,7 +144,16 @@ class Product(models.Model):
     )
     name = models.CharField(max_length=160)
     slug = models.SlugField(unique=True, max_length=180)
-    image_url = models.URLField(help_text="Product photo URL (Unsplash or uploaded file URL).")
+    image = models.ImageField(
+        upload_to="products/",
+        blank=True,
+        help_text="Upload any photo — it is saved as 1200 × 1200 px automatically.",
+    )
+    image_url = models.CharField(
+        max_length=500,
+        blank=True,
+        help_text="Optional image link. Used when no uploaded photo is set.",
+    )
     size = models.CharField(max_length=120, blank=True)
     qty = models.CharField(max_length=80, blank=True, help_text='Stock to show, e.g. "150 Nos" or "18 Sets".')
     style = models.CharField(max_length=80, blank=True)
@@ -84,12 +188,19 @@ class Product(models.Model):
         return self.name
 
     @property
+    def photo_url(self):
+        if self.image:
+            return self.image.url
+        return self.image_url or ""
+
+    @property
     def is_low_stock(self):
         return self.qty_number <= 5
 
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
+        normalize_to_square(self.image, basename=self.slug or self.name or "product")
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -143,10 +254,30 @@ class Inquiry(models.Model):
         (STATUS_COMPLETED, "Completed"),
     )
 
+    SOURCE_WEBSITE = "website"
+    SOURCE_WHATSAPP = "whatsapp"
+    SOURCE_CHOICES = (
+        (SOURCE_WEBSITE, "Website quote"),
+        (SOURCE_WHATSAPP, "WhatsApp enquiry"),
+    )
+
     name = models.CharField(max_length=120)
+    company_name = models.CharField(max_length=160, blank=True)
     email = models.EmailField()
     phone = models.CharField(max_length=30)
+    event_date = models.DateField(null=True, blank=True)
+    event_days = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="How many days the rental / event is needed.",
+    )
     message = models.TextField()
+    source = models.CharField(
+        max_length=20,
+        choices=SOURCE_CHOICES,
+        default=SOURCE_WEBSITE,
+        help_text="Where this enquiry came from.",
+    )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,

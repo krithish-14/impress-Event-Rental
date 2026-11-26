@@ -5,13 +5,18 @@ section.gallery-section {
   background: #f7f4ee;
 }
 
-.gallery-filters {
+.gallery-filters,
+.gallery-brand-filters {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   justify-content: center;
-  margin: 0 auto 34px;
+  margin: 0 auto 18px;
   max-width: 1100px;
+}
+
+.gallery-filters {
+  margin-bottom: 34px;
 }
 
 .gallery-filter {
@@ -24,6 +29,7 @@ section.gallery-section {
   font-weight: 600;
   letter-spacing: 0.02em;
   cursor: pointer;
+  text-decoration: none;
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
@@ -108,7 +114,7 @@ section.gallery-section {
 .gallery-tile-media {
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1 / 1;
   background: #fff;
   overflow: hidden;
 }

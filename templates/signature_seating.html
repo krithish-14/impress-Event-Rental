@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ brand.name }} — {{ site_name }}{% endblock %}
+{% block body_class %}ss-store{% endblock %}
+
+{% block extra_head %}
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="{% static 'css/signature-seating.css' %}?v=1" />
+{% endblock %}
+
+{% block site_header %}
+<header class="ss-topbar">
+  <div class="ss-topbar-inner">
+    <a href="{% url 'home' %}" class="ss-logo" aria-label="{{ site_name }}">
+      <img src="{% static 'images/event-rental-logo.png' %}" alt="{{ site_name }}" />
+    </a>
+
+    <form class="ss-search" action="{% url 'gallery' %}" method="get" role="search">
+      <input type="hidden" name="brand" value="{{ brand.slug }}" />
+      <input type="search" name="q" placeholder="Search" aria-label="Search Signature Seating" />
+      <button type="submit" aria-label="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </form>
+
+    <div class="ss-utils">
+      {% if user.is_authenticated %}
+      <a class="ss-util" href="{% url 'account_settings' %}">
+        <i class="fa-regular fa-user"></i>
+        <span>Account</span>
+      </a>
+      {% else %}
+      <a class="ss-util" href="{% url 'login' %}">
+        <i class="fa-regular fa-user"></i>
+        <span>Sign In</span>
+      </a>
+      {% endif %}
+      <a class="ss-util" href="{% url 'wishlist' %}">
+        <i class="fa-regular fa-heart"></i>
+        <span>Wishlist</span>
+        <em class="header-count" data-count="wishlist" hidden>0</em>
+      </a>
+      <a class="ss-util" href="{% url 'cart' %}">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span>Cart</span>
+        <em class="header-count" data-count="cart" hidden>0</em>
+      </a>
+    </div>
+  </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<section class="ss-hero"{% if brand.banner_photo_url %} style="--ss-hero-image: url('{{ brand.banner_photo_url }}')"{% endif %}>
+  <div class="ss-hero-media" aria-hidden="true"></div>
+  <div class="ss-hero-copy">
+    <p class="ss-hero-brand">{{ brand.short_name|default:brand.name }}</p>
+    <h1>{{ brand.tagline|default:"Make Every Wedding Moment Extraordinary." }}</h1>
+  </div>
+</section>
+
+<section class="ss-intro">
+  <p>
+    {% if brand.description %}
+      {{ brand.description }}
+    {% else %}
+      Impress Signature Seating brings together refined sofas, diwans, and chairs crafted for weddings and premium celebrations — luxury, comfort, and presence in every seat.
+    {% endif %}
+  </p>
+</section>
+
+<section class="ss-categories">
+  <h2>Shop by Categories</h2>
+  <div class="ss-category-grid">
+    {% for item in categories %}
+    <a class="ss-category-card" href="{% url 'collection' item.slug %}">
+      <span class="ss-category-media">
+        {% if item.photo_url %}
+        <img src="{{ item.photo_url }}" alt="{{ item.name }}" loading="lazy" />
+        {% else %}
+        <span class="ss-category-placeholder">{{ item.name|slice:":1" }}</span>
+        {% endif %}
+      </span>
+      <span class="ss-category-name">{{ item.name }}</span>
+    </a>
+    {% empty %}
+    <p class="ss-empty">No collections yet. Add Sofa, Diwan, and Chairs from the admin dashboard.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

@@ -11,24 +11,85 @@
 <section class="bag-page">
   <div class="bag-wrap" id="cartPage">
     <div class="bag-empty" id="cartEmpty">
-      <i class="fa-solid fa-bag-shopping"></i>
-      <h2>Your cart is empty</h2>
-      <p>Add rentals from any collection to request a quote.</p>
+      <i class="fa-solid fa-bag-shopping" id="cartEmptyIcon"></i>
+      <h2 id="cartEmptyTitle">Your cart is empty</h2>
+      <p id="cartEmptyText">Add rentals from any collection to request a quote.</p>
+      <p class="cart-quote-status is-success" id="cartEmptyStatus" hidden></p>
       <a class="card-btn" href="{% url 'home' %}#collections">Browse Collections</a>
     </div>
-    <div class="bag-list" id="cartList" hidden></div>
-    <div class="bag-footer" id="cartFooter" hidden>
-      <p class="bag-total">Items in cart: <strong id="cartTotal">0</strong></p>
-      <a class="pdp-btn pdp-btn-quote" id="cartQuoteBtn" href="{% url 'contact' %}">Request Quote</a>
-      <a class="pdp-btn pdp-btn-whatsapp" id="cartWhatsappBtn" href="https://wa.me/{{ site_whatsapp }}" target="_blank" rel="noreferrer">
-        <i class="fa-brands fa-whatsapp"></i>
-        WhatsApp Enquiry
-      </a>
+
+    <div id="cartFilled" hidden>
+      <div class="bag-list" id="cartList"></div>
+      <div class="bag-footer" id="cartFooter">
+        <p class="bag-total">Items in cart: <strong id="cartTotal">0</strong></p>
+
+        <form class="cart-quote-form" id="cartQuoteForm" novalidate>
+          {% csrf_token %}
+          <h3>Request details</h3>
+          <p class="cart-quote-lead">Share your event details. We’ll include every cart item and quantity with your request.</p>
+
+          <div class="cart-quote-grid">
+            <label class="cart-field">
+              <span>Name <em>*</em></span>
+              <input type="text" name="name" id="cartName" autocomplete="name" required />
+              <small class="error-msg" data-error="name"></small>
+            </label>
+            <label class="cart-field">
+              <span>Company name <em class="optional">(optional)</em></span>
+              <input type="text" name="company_name" id="cartCompany" autocomplete="organization" />
+            </label>
+            <label class="cart-field">
+              <span>Phone number <em>*</em></span>
+              <input type="tel" name="phone" id="cartPhone" autocomplete="tel" required />
+              <small class="error-msg" data-error="phone"></small>
+            </label>
+            <label class="cart-field">
+              <span>Email ID <em>*</em></span>
+              <input type="email" name="email" id="cartEmail" autocomplete="email" required />
+              <small class="error-msg" data-error="email"></small>
+            </label>
+            <label class="cart-field">
+              <span>Event date <em>*</em></span>
+              <input type="date" name="event_date" id="cartEventDate" required />
+              <small class="error-msg" data-error="event_date"></small>
+            </label>
+            <label class="cart-field">
+              <span>How many days needed <em>*</em></span>
+              <input type="number" name="event_days" id="cartEventDays" min="1" max="365" value="1" required />
+              <small class="error-msg" data-error="event_days"></small>
+            </label>
+          </div>
+
+          <label class="cart-field cart-field-full">
+            <span>Message <em>*</em></span>
+            <textarea name="message" id="cartMessage" rows="4" required placeholder="Tell us about your event, venue, or any special requirements."></textarea>
+            <small class="error-msg" data-error="message"></small>
+          </label>
+
+          <p class="cart-quote-status" id="cartQuoteStatus" hidden></p>
+
+          <div class="cart-quote-actions">
+            <button type="submit" class="pdp-btn pdp-btn-quote" id="cartQuoteBtn" data-source="website">
+              Request Quote
+            </button>
+            <button type="button" class="pdp-btn pdp-btn-whatsapp" id="cartWhatsappBtn" data-source="whatsapp">
+              <i class="fa-brands fa-whatsapp"></i>
+              WhatsApp Enquiry
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </section>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/cart-page.js' %}?v=11"></script>
+<script>
+  window.EVENT_RENTAL_CART = {
+    submitUrl: "{% url 'cart_quote_submit' %}",
+    whatsapp: "{{ site_whatsapp }}",
+  };
+</script>
+<script src="{% static 'js/cart-page.js' %}?v=13"></script>
 {% endblock %}

@@ -2,16 +2,122 @@
 {% load static %}
 
 {% block content %}
-<section class="hero" id="home">
-  <div class="hero-slider">
-    <img src="{% static 'images/hero/1.webp' %}" alt="Event rental hero 1" class="slide" />
-    <img src="{% static 'images/hero/2.webp' %}" alt="Event rental hero 2" class="slide" />
-    <img src="{% static 'images/hero/3.webp' %}" alt="Event rental hero 3" class="slide" />
-    <img src="{% static 'images/hero/4.webp' %}" alt="Event rental hero 4" class="slide" />
-    <img src="{% static 'images/hero/5.webp' %}" alt="Event rental hero 5" class="slide" />
-    <img src="{% static 'images/hero/6.webp' %}" alt="Event rental hero 6" class="slide" />
+<section class="home-banner" id="home" aria-label="Featured banners">
+  <div class="home-banner-viewport" data-home-banner>
+    <div class="home-banner-track">
+      <div class="home-banner-slide is-active">
+        <img src="{% static 'images/hero/1.webp' %}" alt="Event rental banner 1" />
+      </div>
+      <div class="home-banner-slide">
+        <img src="{% static 'images/hero/2.webp' %}" alt="Event rental banner 2" />
+      </div>
+      <div class="home-banner-slide">
+        <img src="{% static 'images/hero/3.webp' %}" alt="Event rental banner 3" />
+      </div>
+      <div class="home-banner-slide">
+        <img src="{% static 'images/hero/4.webp' %}" alt="Event rental banner 4" />
+      </div>
+      <div class="home-banner-slide">
+        <img src="{% static 'images/hero/5.webp' %}" alt="Event rental banner 5" />
+      </div>
+      <div class="home-banner-slide">
+        <img src="{% static 'images/hero/6.webp' %}" alt="Event rental banner 6" />
+      </div>
+    </div>
+    <button type="button" class="home-banner-nav home-banner-prev" data-home-banner-prev aria-label="Previous banner">
+      <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="home-banner-nav home-banner-next" data-home-banner-next aria-label="Next banner">
+      <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+    </button>
+    <div class="home-banner-dots" data-home-banner-dots role="tablist" aria-label="Banner slides"></div>
   </div>
 </section>
+
+{% if home_reels %}
+<section class="home-reels" aria-label="Reels" data-home-reels>
+  <div class="home-reels-wrap">
+    <button type="button" class="home-reels-nav home-reels-prev" data-reels-prev aria-label="Previous reels">
+      <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+    </button>
+    <div class="home-reels-scroller" data-reels-scroller>
+      {% for reel in home_reels %}
+      <button
+        type="button"
+        class="home-reel-card"
+        data-reel-open
+        data-reel-code="{{ reel.code }}"
+        data-reel-video="{{ reel.video_url }}"
+        data-reel-poster="{{ reel.thumbnail }}"
+        aria-label="Play reel {{ forloop.counter }}"
+      >
+        <video
+          class="home-reel-thumb"
+          src="{{ reel.video_url }}"
+          {% if reel.thumbnail %}poster="{{ reel.thumbnail }}"{% endif %}
+          muted
+          loop
+          playsinline
+          autoplay
+          preload="metadata"
+          data-reel-preview
+        ></video>
+      </button>
+      {% endfor %}
+    </div>
+    <button type="button" class="home-reels-nav home-reels-next" data-reels-next aria-label="Next reels">
+      <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+    </button>
+  </div>
+</section>
+
+<div class="reel-modal" id="reelModal" hidden>
+  <div class="reel-modal-backdrop" data-reel-close></div>
+  <div class="reel-modal-stage" role="dialog" aria-modal="true" aria-label="Reel player">
+    <button type="button" class="reel-modal-close-btn" data-reel-close aria-label="Close reel">
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="reel-modal-arrow reel-modal-arrow-prev" data-reel-carousel-prev aria-label="Previous reel">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+    </button>
+    <div class="reel-modal-rail" data-reel-rail>
+      {% for reel in home_reels %}
+      <article
+        class="reel-modal-slide"
+        data-reel-slide
+        data-reel-index="{{ forloop.counter0 }}"
+        data-reel-code="{{ reel.code }}"
+        data-reel-video="{{ reel.video_url }}"
+        data-reel-poster="{{ reel.thumbnail }}"
+      >
+        <video
+          class="reel-modal-slide-video"
+          {% if reel.thumbnail %}poster="{{ reel.thumbnail }}"{% endif %}
+          playsinline
+          loop
+          preload="metadata"
+        ></video>
+        <button type="button" class="reel-modal-tap" data-reel-tap aria-label="Play or pause reel"></button>
+        <div class="reel-modal-actions">
+          <button type="button" class="reel-modal-btn reel-modal-close-inline" data-reel-close aria-label="Close reel">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="reel-modal-btn" data-reel-sound aria-label="Toggle sound" aria-pressed="true">
+            <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="reel-modal-btn reel-modal-like" data-reel-like aria-label="Like reel" aria-pressed="false">
+            <i class="fa-regular fa-heart" aria-hidden="true"></i>
+          </button>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    <button type="button" class="reel-modal-arrow reel-modal-arrow-next" data-reel-carousel-next aria-label="Next reel">
+      <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+    </button>
+  </div>
+</div>
+{% endif %}
 
 <div class="ribbon">
   <div class="ribbon-track">
@@ -121,7 +227,7 @@
         {% for item in featured_categories %}
         <article class="col-card">
           <div class="card-img-wrap">
-            <img src="{{ item.image_url }}" alt="{{ item.name }}" loading="lazy" />
+            <img src="{{ item.photo_url }}" alt="{{ item.name }}" loading="lazy" />
             <div class="card-img-overlay"></div>
           </div>
           <div class="card-body">
@@ -142,4 +248,60 @@
     <div class="col-slider-dots" id="colSliderDots" aria-hidden="true"></div>
   </div>
 </section>
+
+<section class="ss-showcase" aria-label="Signature Seating">
+  <div class="ss-showcase-inner">
+    <div class="col-header ss-showcase-head">
+      <h1>Signature <span>Seating</span></h1>
+      <p class="col-subtitle">Impress Signature Seating</p>
+      <div class="divider-ornament">
+        <div class="divider-line"></div>
+        <div class="divider-diamond"></div>
+        <div class="divider-line"></div>
+      </div>
+      <p class="col-desc">
+        Curated chairs, sofas, and diwans with a premium rental finish.
+      </p>
+    </div>
+
+    <div class="ss-showcase-grid">
+      <a class="ss-tile ss-tile-portrait" href="{% url 'collection' 'ss-chairs' %}">
+        <span class="ss-tile-bg" aria-hidden="true"></span>
+        <img src="{% static 'images/signature-seating/chair.png' %}" alt="Signature seating chairs" loading="lazy" />
+        <span class="ss-tile-label">
+          <span class="ss-tile-title">Chairs</span>
+          <span class="ss-tile-sub">Signature seating</span>
+        </span>
+      </a>
+
+      <a class="ss-tile ss-tile-wide" href="{% url 'collection' 'ss-sofa' %}">
+        <span class="ss-tile-bg" aria-hidden="true"></span>
+        <img src="{% static 'images/signature-seating/sofa.png' %}" alt="Signature seating sofa" loading="lazy" />
+        <span class="ss-tile-label">
+          <span class="ss-tile-title">Sofa</span>
+          <span class="ss-tile-sub">Lounge luxury</span>
+        </span>
+      </a>
+
+      <a class="ss-tile ss-tile-wide" href="{% url 'collection' 'ss-diwan' %}">
+        <span class="ss-tile-bg" aria-hidden="true"></span>
+        <img src="{% static 'images/signature-seating/diwan.png' %}" alt="Signature seating diwan" loading="lazy" />
+        <span class="ss-tile-label">
+          <span class="ss-tile-title">Diwan</span>
+          <span class="ss-tile-sub">Regal comfort</span>
+        </span>
+      </a>
+    </div>
+
+    <div class="ss-showcase-cta">
+      <a class="ss-showcase-btn" href="{% url 'brand' 'impress-signature-seating' %}">
+        Explore Signature Seating
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/home-reels.js' %}?v=7"></script>
 {% endblock %}

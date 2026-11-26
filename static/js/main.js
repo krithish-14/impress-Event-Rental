@@ -1,21 +1,21 @@
 (function () {
   var menuBtn = document.getElementById("mobileMenuBtn");
   var menu = document.getElementById("mobileMenu");
-  var collectionsBtn = document.getElementById("mobileCollectionsBtn");
-  var collections = document.getElementById("mobileCollections");
-
   if (menuBtn && menu) {
     menuBtn.addEventListener("click", function () {
       menu.classList.toggle("active");
     });
   }
 
-  if (collectionsBtn && collections) {
-    collectionsBtn.addEventListener("click", function () {
-      var open = collections.classList.toggle("active");
-      collectionsBtn.textContent = open ? "COLLECTIONS −" : "COLLECTIONS +";
+  document.querySelectorAll(".submenu-toggle").forEach(function (btn) {
+    var panel = btn.nextElementSibling;
+    if (!panel || !panel.classList.contains("mobile-submenu")) return;
+    var label = (btn.textContent || "").replace(/\s*[+−-]\s*$/, "").trim();
+    btn.addEventListener("click", function () {
+      var open = panel.classList.toggle("active");
+      btn.textContent = label + (open ? " −" : " +");
     });
-  }
+  });
 
   document.querySelectorAll(".dropdown-toggle").forEach(function (link) {
     link.addEventListener("click", function (event) {
@@ -48,6 +48,86 @@
     }
     if (!account) closeAccountMenus();
   });
+
+  (function initHomeBanner() {
+    var homeBanner = document.querySelector("[data-home-banner]");
+    if (!homeBanner) return;
+
+    var bannerSlides = Array.prototype.slice.call(
+      homeBanner.querySelectorAll(".home-banner-slide")
+    );
+    var bannerDotsWrap = homeBanner.querySelector("[data-home-banner-dots]");
+    var prevBanner = homeBanner.querySelector("[data-home-banner-prev]");
+    var nextBanner = homeBanner.querySelector("[data-home-banner-next]");
+    var bannerIndex = 0;
+    var bannerTimer = null;
+    var bannerHover = false;
+
+    function renderBannerDots() {
+      if (!bannerDotsWrap) return;
+      bannerDotsWrap.innerHTML = "";
+      bannerSlides.forEach(function (_slide, i) {
+        var dot = document.createElement("button");
+        dot.type = "button";
+        dot.className = "home-banner-dot" + (i === bannerIndex ? " is-active" : "");
+        dot.setAttribute("aria-label", "Go to banner " + (i + 1));
+        dot.setAttribute("aria-selected", i === bannerIndex ? "true" : "false");
+        dot.addEventListener("click", function () {
+          goBanner(i, true);
+        });
+        bannerDotsWrap.appendChild(dot);
+      });
+    }
+
+    function syncBannerDots() {
+      if (!bannerDotsWrap) return;
+      var dots = bannerDotsWrap.querySelectorAll(".home-banner-dot");
+      for (var i = 0; i < dots.length; i += 1) {
+        var active = i === bannerIndex;
+        dots[i].className = "home-banner-dot" + (active ? " is-active" : "");
+        dots[i].setAttribute("aria-selected", active ? "true" : "false");
+        dots[i].setAttribute("aria-current", active ? "true" : "false");
+      }
+    }
+
+    function goBanner(next, userAction) {
+      if (!bannerSlides.length) return;
+      bannerIndex = ((next % bannerSlides.length) + bannerSlides.length) % bannerSlides.length;
+      bannerSlides.forEach(function (slide, i) {
+        slide.classList.toggle("is-active", i === bannerIndex);
+      });
+      syncBannerDots();
+      if (userAction) restartBanner();
+    }
+
+    function restartBanner() {
+      window.clearInterval(bannerTimer);
+      bannerTimer = window.setInterval(function () {
+        if (!bannerHover) goBanner(bannerIndex + 1, false);
+      }, 5000);
+    }
+
+    if (prevBanner) {
+      prevBanner.addEventListener("click", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        goBanner(bannerIndex - 1, true);
+      });
+    }
+    if (nextBanner) {
+      nextBanner.addEventListener("click", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        goBanner(bannerIndex + 1, true);
+      });
+    }
+    homeBanner.addEventListener("mouseenter", function () { bannerHover = true; });
+    homeBanner.addEventListener("mouseleave", function () { bannerHover = false; });
+
+    renderBannerDots();
+    goBanner(0, false);
+    restartBanner();
+  })();
 
   var slider = document.getElementById("colSlider");
   if (slider) {

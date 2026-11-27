@@ -165,7 +165,20 @@
 </section>
 
 {% if home_reels %}
-<section class="home-reels" aria-label="Reels" data-home-reels>
+<section class="home-reels" aria-label="Instagram Reels" data-home-reels>
+  <div class="home-reels-head">
+    <p class="home-reels-eyebrow"><i class="fa-brands fa-instagram" aria-hidden="true"></i> Instagram</p>
+    <h2>Instagram <span>Reels</span></h2>
+    <div class="divider-ornament">
+      <div class="divider-line"></div>
+      <div class="divider-diamond"></div>
+      <div class="divider-line"></div>
+    </div>
+    <p class="home-reels-desc">
+      Watch our latest setups, styling moments, and behind-the-scenes event stories —
+      straight from Instagram.
+    </p>
+  </div>
   <div class="home-reels-wrap">
     <button type="button" class="home-reels-nav home-reels-prev" data-reels-prev aria-label="Previous reels">
       <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
@@ -249,35 +262,183 @@
 </div>
 {% endif %}
 
-<section class="amoga-home-banner" aria-label="Amoga Decor">
-  {# Recommended artwork: 1920 × 465 px (wide landscape) #}
-  <a class="amoga-home-banner-link" href="{% url 'amoga_decor' %}">
-    <img
-      class="amoga-home-banner-img"
-      src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1920&h=465&q=80"
-      alt="Amoga Decor — bespoke event décor"
-      loading="lazy"
-      width="1920"
-      height="465"
-    />
-    <div class="amoga-home-banner-veil" aria-hidden="true"></div>
-    <div class="amoga-home-banner-copy">
-      <img
-        src="{% static 'images/ribbon/amoga-decors.webp' %}"
-        alt=""
-        class="amoga-home-banner-mark"
-        loading="lazy"
-      />
-      <p class="amoga-home-banner-brand">Amoga Decor</p>
-      <h2>Bespoke décor for moments that linger</h2>
-      <p class="amoga-home-banner-sub">
-        Florals, lighting, and custom styling — crafted as our décor atelier under Event Rental.
+<section class="home-reviews" aria-label="Google reviews">
+  <div class="home-reviews-inner">
+    <div class="col-header home-reviews-head">
+      <h1>Guest <span>Reviews</span></h1>
+      <p class="col-subtitle">From Google · Impress Decors</p>
+      <div class="divider-ornament">
+        <div class="divider-line"></div>
+        <div class="divider-diamond"></div>
+        <div class="divider-line"></div>
+      </div>
+      <p class="col-desc">
+        Real Google reviews from customers who rented with Impress Decors &amp; Event Rental.
       </p>
-      <span class="amoga-home-banner-cta">
-        Enquire now <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-      </span>
     </div>
-  </a>
+
+    <div class="home-reviews-summary">
+      <div class="home-reviews-score">
+        <strong>5.0</strong>
+        <div class="home-reviews-stars" aria-hidden="true">
+          <i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i>
+        </div>
+        <span>Featured Google reviews</span>
+      </div>
+      <a
+        class="home-reviews-google"
+        href="https://www.google.com/maps/place/Impress+Decors/@12.959333,80.2481297,17z/data=!4m8!3m7!1s0x3a525d112e919141:0x4fe2e097091736a2!8m2!3d12.959333!4d80.2481297!16s%2Fg%2F11c2j8y0qk"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <i class="fa-brands fa-google" aria-hidden="true"></i>
+        Review us on Google
+      </a>
+    </div>
+
+    <div class="home-reviews-carousel" data-reviews-carousel>
+      <button type="button" class="home-reviews-nav home-reviews-prev" data-reviews-prev aria-label="Previous reviews">
+        <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+      </button>
+
+      <div class="home-reviews-viewport">
+        <div class="home-reviews-track" data-reviews-track>
+          <article class="home-review-card">
+            <div class="home-review-top">
+              <span class="home-review-avatar" aria-hidden="true">D</span>
+              <div>
+                <h3>Divya</h3>
+                <p class="home-review-meta">Google · a month ago</p>
+              </div>
+              <div class="home-review-stars" aria-label="5 stars">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+              </div>
+            </div>
+            <p>
+              “I am really happy with the services of Impress Decors. They have a good range of furniture
+              and tents for rental at affordable prices. The team is quite efficient and I would
+              definitely recommend them for their excellent execution.”
+            </p>
+            <a class="home-review-link" href="https://share.google/HGU5oYWV5gGjWhbKi" target="_blank" rel="noopener noreferrer">
+              Read on Google
+            </a>
+          </article>
+
+          <article class="home-review-card">
+            <div class="home-review-top">
+              <span class="home-review-avatar" aria-hidden="true">A</span>
+              <div>
+                <h3>Anand Krishnan</h3>
+                <p class="home-review-meta">Google · a month ago</p>
+              </div>
+              <div class="home-review-stars" aria-label="5 stars">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+              </div>
+            </div>
+            <p>
+              “Extra ordinary service by Impress Decors. On time delivery and fixing, all materials were
+              clean and almost new. Excellent decorations. Highly reliable and budget friendly. Kudos Team!”
+            </p>
+            <a class="home-review-link" href="https://share.google/OW1y0eTDRmAuPkq2U" target="_blank" rel="noopener noreferrer">
+              Read on Google
+            </a>
+          </article>
+
+          <article class="home-review-card">
+            <div class="home-review-top">
+              <span class="home-review-avatar" aria-hidden="true">D</span>
+              <div>
+                <h3>Dinesh Kumar</h3>
+                <p class="home-review-meta">Google · a month ago</p>
+              </div>
+              <div class="home-review-stars" aria-label="5 stars">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+              </div>
+            </div>
+            <p>
+              “Impress Decors &amp; Rentals provided excellent service with perfect on‑time execution.
+              Their team truly lives by their core values — customer first, hard work, flexibility, and
+              flawless delivery. The setup was neat, professional, and exactly as promised.”
+            </p>
+            <a class="home-review-link" href="https://share.google/d7rxE7VaNMb6bgQNR" target="_blank" rel="noopener noreferrer">
+              Read on Google
+            </a>
+          </article>
+
+          <article class="home-review-card">
+            <div class="home-review-top">
+              <span class="home-review-avatar" aria-hidden="true">D</span>
+              <div>
+                <h3>D M</h3>
+                <p class="home-review-meta">Google · a month ago</p>
+              </div>
+              <div class="home-review-stars" aria-label="5 stars">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+              </div>
+            </div>
+            <p>
+              “Impress Decors &amp; Rentals delivered a truly premium experience with their luxury seating
+              and high-end décor arrangements. Their attention to detail is evident in every element —
+              from elegant stage designs to plush seating that elevates the entire ambience.”
+            </p>
+            <a class="home-review-link" href="https://share.google/0zVxIAg2bTyuoxN9U" target="_blank" rel="noopener noreferrer">
+              Read on Google
+            </a>
+          </article>
+
+          <article class="home-review-card">
+            <div class="home-review-top">
+              <span class="home-review-avatar" aria-hidden="true">S</span>
+              <div>
+                <h3>Sam Win</h3>
+                <p class="home-review-meta">Google · a month ago</p>
+              </div>
+              <div class="home-review-stars" aria-label="5 stars">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+              </div>
+            </div>
+            <p>
+              “Impress Decors &amp; Rentals delivered an exceptional experience end‑to‑end. Professional,
+              responsive, and detail‑oriented — every commitment was honored and every timeline was met.
+              A company you can trust for stress‑free, high‑quality event execution.”
+            </p>
+            <a class="home-review-link" href="https://share.google/9lEhvH9Qo4LrJWbgH" target="_blank" rel="noopener noreferrer">
+              Read on Google
+            </a>
+          </article>
+        </div>
+      </div>
+
+      <button type="button" class="home-reviews-nav home-reviews-next" data-reviews-next aria-label="Next reviews">
+        <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+      </button>
+      <div class="home-reviews-dots" data-reviews-dots role="tablist" aria-label="Review slides"></div>
+    </div>
+  </div>
 </section>
 
 <section class="ss-showcase" aria-label="Signature Seating">
@@ -335,4 +496,5 @@
 
 {% block extra_js %}
 <script src="{% static 'js/home-reels.js' %}?v=7"></script>
+<script src="{% static 'js/home-reviews.js' %}?v=1"></script>
 {% endblock %}

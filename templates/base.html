@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="{% static 'css/gallery.css' %}?v=5" />
   <link rel="stylesheet" href="{% static 'css/contact.css' %}" />
   <link rel="stylesheet" href="{% static 'css/product-detail.css' %}?v=14" />
-  <link rel="stylesheet" href="{% static 'css/extras.css' %}?v=46" />
+  <link rel="stylesheet" href="{% static 'css/extras.css' %}?v=49" />
   <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=10" />
   {% block extra_head %}{% endblock %}
 </head>
@@ -61,6 +61,10 @@
           <li class="separator"></li>
           <li class="{% if url_name == 'gallery' %}active{% endif %}">
             <a href="{% url 'gallery' %}">GALLERY</a>
+          </li>
+          <li class="separator"></li>
+          <li class="{% if url_name == 'amoga_decor' %}active{% endif %}">
+            <a href="{% url 'amoga_decor' %}">DECOR ENQUIRY</a>
           </li>
           <li class="separator"></li>
           <li class="{% if url_name == 'contact' %}active{% endif %}">
@@ -201,6 +205,7 @@
         </li>
         <li><a href="{% url 'event_solutions' %}">EVENT SOLUTIONS</a></li>
         <li><a href="{% url 'gallery' %}">GALLERY</a></li>
+        <li><a href="{% url 'amoga_decor' %}"{% if url_name == 'amoga_decor' %} class="active"{% endif %}>DECOR ENQUIRY</a></li>
         <li><a href="{% url 'contact' %}">CONTACT</a></li>
         {% if user.is_authenticated %}
         <li><a href="{% url 'account_settings' %}">SETTINGS</a></li>

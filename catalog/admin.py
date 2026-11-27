@@ -11,6 +11,7 @@ from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 
 from .models import (
+    AmogaDecorEnquiry,
     Brand,
     Category,
     CustomerProfile,
@@ -37,6 +38,7 @@ class EventRentalAdminSite(admin.AdminSite):
     def each_context(self, request):
         ctx = super().each_context(request)
         ctx["unread_quotes"] = Inquiry.objects.filter(is_read=False).count()
+        ctx["unread_amoga"] = AmogaDecorEnquiry.objects.filter(is_read=False).count()
         return ctx
 
     def index(self, request, extra_context=None):
@@ -940,3 +942,72 @@ class ReviewReportAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+
+@admin.register(AmogaDecorEnquiry, site=site)
+class AmogaDecorEnquiryAdmin(admin.ModelAdmin):
+    list_display = (
+        "followup_badge",
+        "name",
+        "company_name",
+        "event_type",
+        "email",
+        "phone",
+        "created_at",
+    )
+    list_display_links = ("name",)
+    list_filter = ("event_type", "is_read", "created_at")
+    search_fields = ("name", "company_name", "email", "phone", "decor_details")
+    date_hierarchy = "created_at"
+    readonly_fields = (
+        "name",
+        "company_name",
+        "event_type",
+        "email",
+        "phone",
+        "decor_details",
+        "created_at",
+    )
+    ordering = ("-created_at",)
+    list_per_page = 20
+    actions = ("mark_followed_up", "mark_new")
+    fieldsets = (
+        (
+            "Customer",
+            {"fields": ("name", "company_name", "event_type", "email", "phone", "created_at")},
+        ),
+        (
+            "Decor brief",
+            {"fields": ("decor_details",)},
+        ),
+        (
+            "Follow-up",
+            {"fields": ("is_read",)},
+        ),
+    )
+
+    @admin.display(description="Status", ordering="is_read")
+    def followup_badge(self, obj):
+        if obj.is_read:
+            return format_html('<span style="color:#0d4a3e;font-weight:700;">Followed up</span>')
+        return format_html('<span style="color:#b45309;font-weight:700;">New</span>')
+
+    @admin.action(description="Mark selected as followed up")
+    def mark_followed_up(self, request, queryset):
+        updated = queryset.update(is_read=True)
+        self.message_user(request, f"{updated} Amoga enquiry(ies) marked followed up.")
+
+    @admin.action(description="Mark selected as new")
+    def mark_new(self, request, queryset):
+        updated = queryset.update(is_read=False)
+        self.message_user(request, f"{updated} Amoga enquiry(ies) marked new.")
+
+    def has_add_permission(self, request):
+        return False
+
+    def change_view(self, request, object_id, form_url="", extra_context=None):
+        obj = self.get_object(request, unquote(object_id))
+        if obj and not obj.is_read:
+            obj.is_read = True
+            obj.save(update_fields=["is_read"])
+        return super().change_view(request, object_id, form_url, extra_context)

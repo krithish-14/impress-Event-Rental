@@ -96,6 +96,10 @@
           <strong>Customer quotes</strong>
           <span>{% if unread_quotes %}{{ unread_quotes }} new{% else %}All quotes reviewed{% endif %}</span>
         </a>
+        <a class="er-linkrow" href="{% url 'admin:catalog_amogadecorenquiry_changelist' %}">
+          <strong>Amoga Decor enquiries</strong>
+          <span>{% if unread_amoga %}{{ unread_amoga }} new{% else %}All followed up{% endif %}</span>
+        </a>
       </div>
     </section>
 

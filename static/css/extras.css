@@ -2064,3 +2064,565 @@ body.reel-modal-open {
     right: 12px;
   }
 }
+
+/* —— Amoga Decor home banner (artwork: 1920 × 465 px) —— */
+.amoga-home-banner {
+  --amoga-gold: #c4a574;
+  --amoga-mist: #f3efe6;
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  width: 100%;
+}
+
+.amoga-home-banner-link {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1920 / 465;
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  background: #121916;
+}
+
+.amoga-home-banner-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+  transform: scale(1.01);
+  transition: transform 0.8s ease;
+}
+
+.amoga-home-banner-link:hover .amoga-home-banner-img {
+  transform: scale(1.04);
+}
+
+.amoga-home-banner-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(18, 25, 22, 0.72) 0%,
+      rgba(18, 25, 22, 0.42) 32%,
+      rgba(18, 25, 22, 0.08) 58%,
+      transparent 78%
+    ),
+    linear-gradient(0deg, rgba(18, 25, 22, 0.28), transparent 45%);
+  pointer-events: none;
+}
+
+.amoga-home-banner-copy {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4rem;
+  width: min(42%, 520px);
+  padding: clamp(1rem, 2.4vw, 2rem) clamp(1.25rem, 3.5vw, 3.5rem);
+  color: var(--amoga-mist);
+}
+
+.amoga-home-banner-mark {
+  width: clamp(72px, 7.5vw, 108px);
+  height: auto;
+  margin-bottom: 0.2rem;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.28));
+}
+
+.amoga-home-banner-brand {
+  margin: 0;
+  font-family: "Cormorant Garamond", "Times New Roman", serif;
+  font-size: clamp(0.62rem, 1vw, 0.78rem);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--amoga-gold);
+  font-weight: 600;
+}
+
+.amoga-home-banner-copy h2 {
+  margin: 0;
+  font-family: "Cormorant Garamond", "Times New Roman", serif;
+  font-weight: 600;
+  font-size: clamp(1.25rem, 2.35vw, 2.2rem);
+  line-height: 1.12;
+  color: #faf7f0;
+  max-width: 14ch;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.35);
+}
+
+.amoga-home-banner-sub {
+  margin: 0.1rem 0 0.35rem;
+  font-family: "Outfit", "Jost", sans-serif;
+  font-weight: 300;
+  font-size: clamp(0.78rem, 1.15vw, 0.95rem);
+  line-height: 1.45;
+  color: rgba(243, 239, 230, 0.86);
+  max-width: 32ch;
+}
+
+.amoga-home-banner-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  align-self: flex-start;
+  padding: 0.55rem 0.95rem;
+  border: 1px solid rgba(196, 165, 116, 0.6);
+  color: var(--amoga-gold);
+  font-family: "Outfit", "Jost", sans-serif;
+  font-size: clamp(0.65rem, 0.95vw, 0.74rem);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  backdrop-filter: blur(4px);
+  background: rgba(18, 25, 22, 0.28);
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+.amoga-home-banner-link:hover .amoga-home-banner-cta {
+  background: var(--amoga-gold);
+  color: #121916;
+  border-color: var(--amoga-gold);
+}
+
+@media (max-width: 860px) {
+  .amoga-home-banner-link {
+    aspect-ratio: 16 / 9;
+  }
+
+  .amoga-home-banner-copy {
+    width: min(78%, 420px);
+    padding: 1rem 1.1rem;
+    gap: 0.3rem;
+  }
+
+  .amoga-home-banner-sub {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .amoga-home-banner-veil {
+    background:
+      linear-gradient(
+        90deg,
+        rgba(18, 25, 22, 0.78) 0%,
+        rgba(18, 25, 22, 0.45) 45%,
+        rgba(18, 25, 22, 0.2) 100%
+      );
+  }
+}
+
+@media (max-width: 560px) {
+  .amoga-home-banner-link {
+    aspect-ratio: 4 / 3;
+  }
+
+  .amoga-home-banner-copy {
+    width: 88%;
+  }
+
+  .amoga-home-banner-mark {
+    width: 68px;
+  }
+
+  .amoga-home-banner-sub {
+    -webkit-line-clamp: 3;
+  }
+}
+
+/* —— Amoga Decor enquiry page —— */
+.amoga-page {
+  --amoga-ink: #15201c;
+  --amoga-panel: #f7f4ee;
+  --amoga-gold: #b8925a;
+  --amoga-line: rgba(21, 32, 28, 0.12);
+  background: #0f1613;
+  color: var(--amoga-ink);
+}
+
+.amoga-hero {
+  position: relative;
+  min-height: min(58vh, 520px);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.amoga-hero-media {
+  position: absolute;
+  inset: 0;
+}
+
+.amoga-hero-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 35%;
+  display: block;
+}
+
+.amoga-hero-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(15, 22, 19, 0.35) 0%, rgba(15, 22, 19, 0.72) 55%, #0f1613 100%),
+    linear-gradient(90deg, rgba(15, 22, 19, 0.45), transparent 55%);
+}
+
+.amoga-hero-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.08;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.amoga-hero-inner {
+  position: relative;
+  z-index: 1;
+  width: min(1100px, calc(100% - 2.5rem));
+  margin: 0 auto;
+  padding: 3.5rem 0 2.75rem;
+  color: #f7f4ee;
+}
+
+.amoga-hero-mark {
+  width: clamp(100px, 14vw, 140px);
+  height: auto;
+  margin-bottom: 1rem;
+  animation: amogaFadeUp 0.85s ease both;
+}
+
+.amoga-hero-eyebrow {
+  margin: 0 0 0.65rem;
+  font-family: "Outfit", "Jost", sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--amoga-gold);
+  animation: amogaFadeUp 0.85s ease 0.08s both;
+}
+
+.amoga-hero-inner h1 {
+  margin: 0 0 0.85rem;
+  font-family: "Cormorant Garamond", "Times New Roman", serif;
+  font-weight: 600;
+  font-size: clamp(2.4rem, 5.5vw, 3.75rem);
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  max-width: 14ch;
+  animation: amogaFadeUp 0.9s ease 0.14s both;
+}
+
+.amoga-hero-lead {
+  margin: 0;
+  max-width: 42ch;
+  font-family: "Outfit", "Jost", sans-serif;
+  font-weight: 300;
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: rgba(247, 244, 238, 0.82);
+  animation: amogaFadeUp 0.9s ease 0.22s both;
+}
+
+.amoga-body {
+  width: min(1100px, calc(100% - 2.5rem));
+  margin: -1.25rem auto 0;
+  padding: 0 0 4.5rem;
+  display: grid;
+  grid-template-columns: 0.9fr 1.2fr;
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  position: relative;
+  z-index: 2;
+}
+
+.amoga-aside {
+  padding: 2rem 1.75rem;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(184, 146, 90, 0.16), transparent 45%),
+    linear-gradient(165deg, #1a2420, #121916);
+  color: #f3efe6;
+  border: 1px solid rgba(184, 146, 90, 0.22);
+  animation: amogaFadeUp 0.85s ease 0.28s both;
+}
+
+.amoga-aside-label {
+  margin: 0 0 0.75rem;
+  font-family: "Outfit", sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--amoga-gold);
+}
+
+.amoga-aside h2 {
+  margin: 0 0 1rem;
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 600;
+  font-size: clamp(1.45rem, 2.4vw, 1.85rem);
+  line-height: 1.2;
+  color: #faf7f0;
+}
+
+.amoga-aside > p {
+  margin: 0 0 1.35rem;
+  font-family: "Outfit", sans-serif;
+  font-weight: 300;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(243, 239, 230, 0.78);
+}
+
+.amoga-aside-list {
+  margin: 0 0 1.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.amoga-aside-list li {
+  position: relative;
+  padding: 0.55rem 0 0.55rem 1.15rem;
+  font-family: "Outfit", sans-serif;
+  font-size: 0.88rem;
+  color: rgba(247, 244, 238, 0.88);
+  border-bottom: 1px solid rgba(243, 239, 230, 0.1);
+}
+
+.amoga-aside-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 1.05rem;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--amoga-gold);
+  transform: rotate(45deg);
+}
+
+.amoga-aside-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.amoga-aside-contact a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--amoga-gold);
+  text-decoration: none;
+  font-family: "Outfit", sans-serif;
+  font-size: 0.88rem;
+  transition: color 0.2s ease;
+}
+
+.amoga-aside-contact a:hover {
+  color: #f3efe6;
+}
+
+.amoga-form-panel {
+  background: var(--amoga-panel);
+  padding: clamp(1.5rem, 3vw, 2.35rem);
+  border: 1px solid rgba(184, 146, 90, 0.18);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+  animation: amogaFadeUp 0.9s ease 0.34s both;
+}
+
+.amoga-form-head {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.15rem;
+  border-bottom: 1px solid var(--amoga-line);
+}
+
+.amoga-form-head h2 {
+  margin: 0 0 0.4rem;
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 600;
+  font-size: 1.85rem;
+  color: var(--amoga-ink);
+}
+
+.amoga-form-head p {
+  margin: 0;
+  font-family: "Outfit", sans-serif;
+  font-weight: 300;
+  font-size: 0.92rem;
+  color: rgba(21, 32, 28, 0.65);
+}
+
+.amoga-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.1rem 1.15rem;
+}
+
+.amoga-form .form-group {
+  margin: 0;
+}
+
+.amoga-form .amoga-span-2 {
+  grid-column: 1 / -1;
+}
+
+.amoga-form label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-family: "Outfit", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(21, 32, 28, 0.72);
+}
+
+.amoga-optional {
+  letter-spacing: 0.04em;
+  text-transform: none;
+  font-weight: 400;
+  color: rgba(21, 32, 28, 0.45);
+}
+
+.amoga-form input,
+.amoga-form select,
+.amoga-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(21, 32, 28, 0.14);
+  background: #fffefb;
+  color: var(--amoga-ink);
+  font-family: "Outfit", "Jost", sans-serif;
+  font-size: 0.95rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 0;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.amoga-form textarea {
+  resize: vertical;
+  min-height: 150px;
+  line-height: 1.55;
+}
+
+.amoga-form select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2315201c' d='M1.2 0.5 6 5.3 10.8.5 12 1.7 6 7.7 0 1.7z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.95rem center;
+  padding-right: 2.4rem;
+}
+
+.amoga-form input:focus,
+.amoga-form select:focus,
+.amoga-form textarea:focus {
+  border-color: rgba(184, 146, 90, 0.7);
+  box-shadow: 0 0 0 3px rgba(184, 146, 90, 0.15);
+}
+
+.amoga-form input.invalid,
+.amoga-form select.invalid,
+.amoga-form textarea.invalid {
+  border-color: #b42318;
+}
+
+.amoga-form .error-msg {
+  display: none;
+  margin-top: 0.35rem;
+  font-family: "Outfit", sans-serif;
+  font-size: 0.78rem;
+  color: #b42318;
+}
+
+.amoga-form-panel .alert {
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  font-family: "Outfit", sans-serif;
+  font-size: 0.9rem;
+}
+
+.amoga-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 1.35rem;
+  padding: 0.95rem 1.55rem;
+  border: none;
+  background: var(--amoga-ink);
+  color: #f7f4ee;
+  font-family: "Outfit", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.2s ease;
+}
+
+.amoga-submit:hover:not(:disabled) {
+  background: #24332d;
+  transform: translateY(-1px);
+}
+
+.amoga-submit:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+@keyframes amogaFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .amoga-body {
+    grid-template-columns: 1fr;
+    margin-top: -0.5rem;
+  }
+
+  .amoga-hero {
+    min-height: min(48vh, 420px);
+  }
+
+  .amoga-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .amoga-form .amoga-span-2 {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .amoga-body {
+    width: calc(100% - 1.5rem);
+  }
+
+  .amoga-hero-inner {
+    width: calc(100% - 1.5rem);
+    padding-top: 2.75rem;
+  }
+
+  .amoga-aside,
+  .amoga-form-panel {
+    padding: 1.35rem 1.15rem;
+  }
+}

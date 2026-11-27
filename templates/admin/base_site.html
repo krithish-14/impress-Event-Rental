@@ -34,6 +34,10 @@
         Quotes
         {% if unread_quotes %}<em>{{ unread_quotes }}</em>{% endif %}
       </a>
+      <a href="{% url 'admin:catalog_amogadecorenquiry_changelist' %}"{% if request.resolver_match.url_name == "amogadecorenquiry_changelist" or request.resolver_match.url_name == "amogadecorenquiry_change" %} class="is-active"{% endif %}>
+        Amoga
+        {% if unread_amoga %}<em>{{ unread_amoga }}</em>{% endif %}
+      </a>
     </nav>
     <div class="er-top-actions">
       {% include "admin/color_theme_toggle.html" %}

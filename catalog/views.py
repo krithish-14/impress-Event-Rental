@@ -60,7 +60,16 @@ def _home_reels():
     return reels
 
 from .auth_views import _normalize_email, _split_name, _valid_email
-from .models import Brand, Category, CustomerProfile, Inquiry, InquiryItem, Product, Review
+from .models import (
+    AmogaDecorEnquiry,
+    Brand,
+    Category,
+    CustomerProfile,
+    Inquiry,
+    InquiryItem,
+    Product,
+    Review,
+)
 from .review_service import eligible_items, public_reviews, rating_summary, schema_json
 from .phones import normalize_phone
 
@@ -119,9 +128,14 @@ def collection(request, slug):
     sibling_categories = Category.objects.all()
     if category.brand_id:
         sibling_categories = sibling_categories.filter(brand=category.brand)
+    template = (
+        "ss_collection.html"
+        if category.brand and category.brand.slug == "impress-signature-seating"
+        else "collection.html"
+    )
     return render(
         request,
-        "collection.html",
+        template,
         {
             "category": category,
             "products": products,
@@ -137,15 +151,22 @@ def product_detail(request, slug):
         slug=slug,
         is_active=True,
     )
+    related_limit = 8 if product.category.brand and product.category.brand.slug == "impress-signature-seating" else 4
     related = (
         Product.objects.filter(category=product.category, is_active=True)
-        .exclude(pk=product.pk)[:4]
+        .exclude(pk=product.pk)[:related_limit]
     )
+    variant_key = product.name.split("(")[0].strip()
+    # Prefer a meaningful stem so colour / size variants group together.
+    for token in (" Sofa", " Diwan", " Chair", " Chairs"):
+        if token in variant_key:
+            variant_key = variant_key[: variant_key.index(token) + len(token)].strip()
+            break
     variants = Product.objects.filter(
         category=product.category,
         is_active=True,
-        name__icontains=product.name.split("(")[0].strip()[:18],
-    )[:6]
+        name__icontains=variant_key[:24],
+    )[:8]
     # Quote flow: allow customers to request any quantity (not limited by display stock).
     max_qty = 9999
     sort_key = request.GET.get("review_sort") or "newest"
@@ -324,6 +345,71 @@ def contact_submit(request):
         {
             "success": True,
             "message": f"Thank you for contacting {settings.SITE_NAME}. We will get back to you shortly.",
+        }
+    )
+
+
+def amoga_decor(request):
+    return render(
+        request,
+        "amoga_decor.html",
+        {"event_choices": AmogaDecorEnquiry.EVENT_CHOICES},
+    )
+
+
+@require_POST
+def amoga_decor_submit(request):
+    name = (request.POST.get("name") or "").strip()
+    company_name = (request.POST.get("company_name") or "").strip()
+    event_type = (request.POST.get("event_type") or "").strip()
+    email = (request.POST.get("email") or "").strip()
+    phone = (request.POST.get("phone") or "").strip()
+    decor_details = (request.POST.get("decor_details") or "").strip()
+    valid_events = {choice[0] for choice in AmogaDecorEnquiry.EVENT_CHOICES}
+    errors = {}
+
+    if not name:
+        errors["name"] = "Name is required."
+    if not event_type:
+        errors["event_type"] = "Event type is required."
+    elif event_type not in valid_events:
+        errors["event_type"] = "Please select a valid event type."
+    if not email:
+        errors["email"] = "Email is required."
+    elif not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
+        errors["email"] = "Please enter a valid email address."
+    digits = re.sub(r"[\s.-]", "", phone)
+    if not phone:
+        errors["phone"] = "Phone number is required."
+    elif not re.match(r"^\+?\d{10,14}$", digits):
+        errors["phone"] = "Please enter a valid phone number (e.g. +91 9876543210)."
+    if not decor_details:
+        errors["decor_details"] = "Please share your decor style and customization needs."
+    elif len(decor_details) < 20:
+        errors["decor_details"] = "Please add a little more detail (at least a few sentences)."
+
+    if errors:
+        return JsonResponse(
+            {
+                "success": False,
+                "errors": errors,
+                "message": "Please correct the highlighted fields.",
+            },
+            status=400,
+        )
+
+    AmogaDecorEnquiry.objects.create(
+        name=name,
+        company_name=company_name,
+        event_type=event_type,
+        email=email,
+        phone=phone,
+        decor_details=decor_details,
+    )
+    return JsonResponse(
+        {
+            "success": True,
+            "message": "Thank you. Your Amoga Decor enquiry has been received — our design team will reach out shortly.",
         }
     )
 

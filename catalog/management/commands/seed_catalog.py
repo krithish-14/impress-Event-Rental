@@ -14,6 +14,9 @@ from catalog.signature_seating_catalog import (
 )
 
 IMAGE_ROOT = Path(settings.BASE_DIR) / "static" / "images" / "Category"
+SS_PRODUCT_ROOT = (
+    Path(settings.BASE_DIR) / "static" / "images" / "signature-seating" / "products"
+)
 IMAGE_SUFFIXES = {".webp", ".jpg", ".jpeg", ".png", ".gif"}
 
 DISPLAY_NAMES = {
@@ -45,7 +48,8 @@ EVENT_RENTAL_BRAND = {
 
 
 def pretty_name(stem):
-    text = re.sub(r"\s+", " ", stem.replace("_", " ")).strip()
+    text = re.sub(r"[-_]+", " ", stem)
+    text = re.sub(r"\s+", " ", text).strip()
     words = []
     for word in text.split(" "):
         if word.isupper() and len(word) <= 4:
@@ -175,6 +179,26 @@ class Command(BaseCommand):
         ).delete()
         return len(keep_slugs), len(keep_product_slugs)
 
+    def signature_seating_products(self, folder_name):
+        folder = SS_PRODUCT_ROOT / folder_name
+        if not folder.is_dir():
+            self.stdout.write(
+                self.style.WARNING(
+                    f"Signature Seating folder missing: {folder}. "
+                    "Run scripts/sync_ss_images.py first."
+                )
+            )
+            return []
+
+        items = []
+        for image in sorted(
+            path
+            for path in folder.iterdir()
+            if path.is_file() and path.suffix.lower() in IMAGE_SUFFIXES
+        ):
+            items.append((pretty_name(image.stem), static_url(image)))
+        return items
+
     def seed_signature_seating(self, brand):
         categories = []
         products = {}
@@ -192,7 +216,8 @@ class Command(BaseCommand):
                     "featured_on_home": item["featured_on_home"],
                 }
             )
-            products[item["slug"]] = list(item["products"])
+            folder = item.get("products_folder") or item["slug"].removeprefix("ss-")
+            products[item["slug"]] = self.signature_seating_products(folder)
         return self.sync_brand_catalogue(brand, categories, products)
 
     def ensure_admin(self):

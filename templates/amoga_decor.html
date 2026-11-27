@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Amoga Decor Enquiry — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="amoga-page">
+  <header class="amoga-hero">
+    <div class="amoga-hero-media" aria-hidden="true">
+      <img
+        src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1920&q=80"
+        alt=""
+        class="amoga-hero-photo"
+      />
+      <div class="amoga-hero-veil"></div>
+      <div class="amoga-hero-grain"></div>
+    </div>
+    <div class="amoga-hero-inner">
+      <img
+        src="{% static 'images/ribbon/amoga-decors.webp' %}"
+        alt="Amoga Decor"
+        class="amoga-hero-mark"
+      />
+      <p class="amoga-hero-eyebrow">A décor atelier by Event Rental</p>
+      <h1>Where rooms become memories</h1>
+      <p class="amoga-hero-lead">
+        Tell us the mood, the moment, and the details — we shape florals, lighting, and custom styling into a space that feels entirely yours.
+      </p>
+    </div>
+  </header>
+
+  <div class="amoga-body">
+    <aside class="amoga-aside">
+      <p class="amoga-aside-label">The atelier</p>
+      <h2>Designed for celebrations that deserve a signature look</h2>
+      <p>
+        Amoga Decor is our dedicated décor house — weddings, receptions, corporate unveilings, and intimate gatherings styled with intention.
+      </p>
+      <ul class="amoga-aside-list">
+        <li>Floral architecture &amp; table landscapes</li>
+        <li>Lighting moods &amp; ceremony backdrops</li>
+        <li>Custom themes tailored to your brief</li>
+      </ul>
+      <div class="amoga-aside-contact">
+        <a href="tel:{{ site_phone_tel }}"><i class="fa-solid fa-phone" aria-hidden="true"></i> {{ site_phone }}</a>
+        <a href="mailto:{{ site_email }}"><i class="fa-solid fa-envelope" aria-hidden="true"></i> {{ site_email }}</a>
+      </div>
+    </aside>
+
+    <div class="amoga-form-panel">
+      <div class="amoga-form-head">
+        <h2>Decor enquiry</h2>
+        <p>Share a few details and our design team will follow up personally.</p>
+      </div>
+
+      <div class="alert alert-success" id="amogaSuccess" style="display:none;"></div>
+      <div class="alert alert-error" id="amogaError" style="display:none;"></div>
+
+      <form
+        class="amoga-form"
+        id="amogaForm"
+        action="{% url 'amoga_decor_submit' %}"
+        method="post"
+        novalidate
+      >
+        {% csrf_token %}
+        <div class="amoga-form-grid">
+          <div class="form-group">
+            <label for="amoga-name">Name</label>
+            <input type="text" id="amoga-name" name="name" required placeholder="Your full name" autocomplete="name" />
+            <span class="error-msg" data-for="name"></span>
+          </div>
+          <div class="form-group">
+            <label for="amoga-company">Company name <span class="amoga-optional">(optional)</span></label>
+            <input type="text" id="amoga-company" name="company_name" placeholder="Organisation or planner" autocomplete="organization" />
+            <span class="error-msg" data-for="company_name"></span>
+          </div>
+          <div class="form-group">
+            <label for="amoga-event">Event type</label>
+            <select id="amoga-event" name="event_type" required>
+              <option value="" disabled selected>Select event type</option>
+              {% for value, label in event_choices %}
+              <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+            <span class="error-msg" data-for="event_type"></span>
+          </div>
+          <div class="form-group">
+            <label for="amoga-email">Email id</label>
+            <input type="email" id="amoga-email" name="email" required placeholder="you@email.com" autocomplete="email" />
+            <span class="error-msg" data-for="email"></span>
+          </div>
+          <div class="form-group amoga-span-2">
+            <label for="amoga-phone">Phone number</label>
+            <input type="tel" id="amoga-phone" name="phone" required placeholder="+91 98765 43210" autocomplete="tel" />
+            <span class="error-msg" data-for="phone"></span>
+          </div>
+          <div class="form-group amoga-span-2">
+            <label for="amoga-details">Detailed explanation about décor style and customization</label>
+            <textarea
+              id="amoga-details"
+              name="decor_details"
+              rows="7"
+              required
+              placeholder="Palette, florals, lighting mood, stage or mandap vision, must-have elements, venue notes…"
+            ></textarea>
+            <span class="error-msg" data-for="decor_details"></span>
+          </div>
+        </div>
+        <button type="submit" class="amoga-submit" id="amogaSubmit">
+          Send enquiry
+          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/amoga-decor.js' %}"></script>
+{% endblock %}

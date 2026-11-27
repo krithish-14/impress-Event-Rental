@@ -26,6 +26,8 @@ urlpatterns = [
     path("cart/quote/", views.cart_quote_submit, name="cart_quote_submit"),
     path("contact/", views.contact, name="contact"),
     path("contact/submit/", views.contact_submit, name="contact_submit"),
+    path("amoga-decor/", views.amoga_decor, name="amoga_decor"),
+    path("amoga-decor/submit/", views.amoga_decor_submit, name="amoga_decor_submit"),
     path("privacy-policy/", views.privacy, name="privacy"),
     path("terms-and-conditions/", views.terms, name="terms"),
 ]

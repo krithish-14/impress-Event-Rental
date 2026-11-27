@@ -106,8 +106,14 @@
     {% endif %}
 
     {% if related %}
-    <section class="pdp-related">
-      <h2>More from this collection</h2>
+    <section class="pdp-related{% if product.category.brand.slug == 'impress-signature-seating' %} pdp-related-ss{% endif %}">
+      <h2>
+        {% if product.category.brand.slug == 'impress-signature-seating' %}
+          More from Signature Seating · {{ product.category.nav_label }}
+        {% else %}
+          More from this collection
+        {% endif %}
+      </h2>
       <div class="pdp-related-grid">
         {% for item in related %}
         <a href="{{ item.get_absolute_url }}" class="pdp-related-card">

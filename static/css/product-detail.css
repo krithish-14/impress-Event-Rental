@@ -377,6 +377,23 @@
   line-height: 1.35;
 }
 
+.pdp-related-ss .pdp-related-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.pdp-related-ss .pdp-related-card {
+  background: #f9f8f5;
+  border-color: #e8e2d8;
+}
+
+.pdp-related-ss .pdp-related-card img {
+  height: 200px;
+  background:
+    radial-gradient(ellipse at 50% 80%, rgba(0, 0, 0, 0.04), transparent 60%),
+    #f9f8f5;
+  padding: 14px;
+}
+
 .pdp-lightbox {
   position: fixed;
   inset: 0;

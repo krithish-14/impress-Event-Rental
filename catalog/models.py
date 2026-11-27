@@ -529,3 +529,41 @@ class ReviewReport(models.Model):
 
     def __str__(self):
         return f"{self.get_reason_display()} on review {self.review_id}"
+
+
+class AmogaDecorEnquiry(models.Model):
+    EVENT_WEDDING = "wedding"
+    EVENT_ENGAGEMENT = "engagement"
+    EVENT_CORPORATE = "corporate"
+    EVENT_BIRTHDAY = "birthday"
+    EVENT_RECEPTION = "reception"
+    EVENT_CULTURAL = "cultural"
+    EVENT_OTHER = "other"
+    EVENT_CHOICES = (
+        (EVENT_WEDDING, "Wedding"),
+        (EVENT_ENGAGEMENT, "Engagement"),
+        (EVENT_CORPORATE, "Corporate / Launch"),
+        (EVENT_BIRTHDAY, "Birthday"),
+        (EVENT_RECEPTION, "Reception"),
+        (EVENT_CULTURAL, "Cultural / Festival"),
+        (EVENT_OTHER, "Other"),
+    )
+
+    name = models.CharField(max_length=120)
+    company_name = models.CharField(max_length=160, blank=True)
+    event_type = models.CharField(max_length=40, choices=EVENT_CHOICES)
+    email = models.EmailField()
+    phone = models.CharField(max_length=30)
+    decor_details = models.TextField(
+        help_text="Decor style, theme, and customization requirements."
+    )
+    is_read = models.BooleanField(default=False, verbose_name="Followed up")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Amoga Decor enquiry"
+        verbose_name_plural = "Amoga Decor enquiries"
+
+    def __str__(self):
+        return f"{self.name} · {self.get_event_type_display()} · {self.created_at:%d %b %Y}"

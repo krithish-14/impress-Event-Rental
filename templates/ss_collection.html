@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ category.name }} — Impress Signature Seating{% endblock %}
+{% block body_class %}ss-collection-page ss-collection-{{ category.slug }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/signature-seating.css' %}?v=13" />
+{% endblock %}
+
+{% block content %}
+<section class="ssc-hero" aria-label="{{ category.name }} collection">
+  <div class="ssc-hero-bg" aria-hidden="true">
+    <span class="ssc-hero-glow"></span>
+    <span class="ssc-hero-rule"></span>
+  </div>
+  <div class="ssc-hero-inner">
+    <p class="ssc-eyebrow">Impress Signature Seating</p>
+    <h1>{{ category.name }}</h1>
+    <div class="ssc-ornament" aria-hidden="true">
+      <span></span>
+      <i></i>
+      <span></span>
+    </div>
+    <p class="ssc-lead">
+      {% if category.description %}
+        {{ category.description }}
+      {% else %}
+        Curated {{ category.name|lower }} pieces for weddings, receptions, and VIP lounges — refined presence in every seat.
+      {% endif %}
+    </p>
+    <p class="ssc-count">{{ products|length }} piece{{ products|length|pluralize }} in this atelier</p>
+  </div>
+</section>
+
+<section class="ssc-atelier">
+  <div class="ssc-atelier-inner">
+    <nav class="ssc-switch" aria-label="Signature Seating collections">
+      {% for cat in categories %}
+      <a
+        href="{% url 'collection' cat.slug %}"
+        class="ssc-switch-link{% if cat.slug == category.slug %} is-active{% endif %}"
+      >
+        <span class="ssc-switch-name">{{ cat.nav_label }}</span>
+        <span class="ssc-switch-count">{{ cat.products.count }}</span>
+      </a>
+      {% endfor %}
+    </nav>
+
+    <div class="ssc-grid" id="product-grid">
+      {% for product in products %}
+      <article
+        class="ssc-piece product-card"
+        data-slug="{{ product.slug }}"
+        data-name="{{ product.name }}"
+        data-image="{{ product.photo_url }}"
+        data-url="{{ product.get_absolute_url }}"
+        data-category="{{ product.category.nav_label }}"
+      >
+        <div class="ssc-piece-stage">
+          <button
+            type="button"
+            class="ssc-wish card-wish-btn"
+            aria-label="Add {{ product.name }} to wishlist"
+            data-slug="{{ product.slug }}"
+            data-name="{{ product.name }}"
+            data-image="{{ product.photo_url }}"
+            data-url="{{ product.get_absolute_url }}"
+            data-category="{{ product.category.nav_label }}"
+          >
+            <i class="fa-regular fa-heart"></i>
+          </button>
+          <a href="{{ product.get_absolute_url }}" class="ssc-piece-media product-card-media">
+            <img src="{{ product.photo_url }}?v=3" alt="{{ product.name }}" loading="lazy" />
+          </a>
+          <span class="ssc-piece-index" aria-hidden="true">
+            {% if product.sort_order < 10 %}0{% endif %}{{ product.sort_order }}
+          </span>
+        </div>
+
+        <div class="ssc-piece-meta">
+          <h2 class="ssc-piece-name">
+            <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+          </h2>
+          {% if product.size %}
+          <p class="ssc-piece-size">{{ product.size }}</p>
+          {% endif %}
+
+          <div class="ssc-piece-actions card-shop-actions">
+            <div class="ssc-qty card-qty-stepper" role="group" aria-label="Quantity for {{ product.name }}">
+              <button type="button" class="card-qty-btn" data-qty-delta="-1" aria-label="Decrease quantity">−</button>
+              <input
+                type="number"
+                class="card-qty-input"
+                value="1"
+                min="1"
+                max="9999"
+                inputmode="numeric"
+                aria-label="Quantity"
+              />
+              <button type="button" class="card-qty-btn" data-qty-delta="1" aria-label="Increase quantity">+</button>
+            </div>
+            <button type="button" class="ssc-add card-add-cart">Add to cart</button>
+            <a href="{{ product.get_absolute_url }}" class="ssc-details">
+              View details <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </a>
+          </div>
+        </div>
+      </article>
+      {% empty %}
+      <p class="ssc-empty">No pieces in this collection yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/collection.js' %}"></script>
+{% endblock %}

@@ -34,91 +34,6 @@
   </div>
 </section>
 
-{% if home_reels %}
-<section class="home-reels" aria-label="Reels" data-home-reels>
-  <div class="home-reels-wrap">
-    <button type="button" class="home-reels-nav home-reels-prev" data-reels-prev aria-label="Previous reels">
-      <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
-    </button>
-    <div class="home-reels-scroller" data-reels-scroller>
-      {% for reel in home_reels %}
-      <button
-        type="button"
-        class="home-reel-card"
-        data-reel-open
-        data-reel-code="{{ reel.code }}"
-        data-reel-video="{{ reel.video_url }}"
-        data-reel-poster="{{ reel.thumbnail }}"
-        aria-label="Play reel {{ forloop.counter }}"
-      >
-        <video
-          class="home-reel-thumb"
-          src="{{ reel.video_url }}"
-          {% if reel.thumbnail %}poster="{{ reel.thumbnail }}"{% endif %}
-          muted
-          loop
-          playsinline
-          autoplay
-          preload="metadata"
-          data-reel-preview
-        ></video>
-      </button>
-      {% endfor %}
-    </div>
-    <button type="button" class="home-reels-nav home-reels-next" data-reels-next aria-label="Next reels">
-      <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-    </button>
-  </div>
-</section>
-
-<div class="reel-modal" id="reelModal" hidden>
-  <div class="reel-modal-backdrop" data-reel-close></div>
-  <div class="reel-modal-stage" role="dialog" aria-modal="true" aria-label="Reel player">
-    <button type="button" class="reel-modal-close-btn" data-reel-close aria-label="Close reel">
-      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-    </button>
-    <button type="button" class="reel-modal-arrow reel-modal-arrow-prev" data-reel-carousel-prev aria-label="Previous reel">
-      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-    </button>
-    <div class="reel-modal-rail" data-reel-rail>
-      {% for reel in home_reels %}
-      <article
-        class="reel-modal-slide"
-        data-reel-slide
-        data-reel-index="{{ forloop.counter0 }}"
-        data-reel-code="{{ reel.code }}"
-        data-reel-video="{{ reel.video_url }}"
-        data-reel-poster="{{ reel.thumbnail }}"
-      >
-        <video
-          class="reel-modal-slide-video"
-          {% if reel.thumbnail %}poster="{{ reel.thumbnail }}"{% endif %}
-          playsinline
-          loop
-          preload="metadata"
-        ></video>
-        <button type="button" class="reel-modal-tap" data-reel-tap aria-label="Play or pause reel"></button>
-        <div class="reel-modal-actions">
-          <button type="button" class="reel-modal-btn reel-modal-close-inline" data-reel-close aria-label="Close reel">
-            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-          </button>
-          <button type="button" class="reel-modal-btn" data-reel-sound aria-label="Toggle sound" aria-pressed="true">
-            <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
-          </button>
-          <button type="button" class="reel-modal-btn reel-modal-like" data-reel-like aria-label="Like reel" aria-pressed="false">
-            <i class="fa-regular fa-heart" aria-hidden="true"></i>
-          </button>
-        </div>
-      </article>
-      {% endfor %}
-    </div>
-    <button type="button" class="reel-modal-arrow reel-modal-arrow-next" data-reel-carousel-next aria-label="Next reel">
-      <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-    </button>
-  </div>
-</div>
-{% endif %}
-
 <div class="ribbon">
   <div class="ribbon-track">
     {% for n in "xxxxxxxx" %}
@@ -247,6 +162,122 @@
     </button>
     <div class="col-slider-dots" id="colSliderDots" aria-hidden="true"></div>
   </div>
+</section>
+
+{% if home_reels %}
+<section class="home-reels" aria-label="Reels" data-home-reels>
+  <div class="home-reels-wrap">
+    <button type="button" class="home-reels-nav home-reels-prev" data-reels-prev aria-label="Previous reels">
+      <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+    </button>
+    <div class="home-reels-scroller" data-reels-scroller>
+      {% for reel in home_reels %}
+      <button
+        type="button"
+        class="home-reel-card"
+        data-reel-open
+        data-reel-code="{{ reel.code }}"
+        data-reel-video="{{ reel.video_url }}"
+        data-reel-poster="{{ reel.thumbnail }}"
+        aria-label="Play reel {{ forloop.counter }}"
+      >
+        <video
+          class="home-reel-thumb"
+          src="{{ reel.video_url }}"
+          {% if reel.thumbnail %}poster="{{ reel.thumbnail }}"{% endif %}
+          muted
+          loop
+          playsinline
+          autoplay
+          preload="metadata"
+          data-reel-preview
+        ></video>
+      </button>
+      {% endfor %}
+    </div>
+    <button type="button" class="home-reels-nav home-reels-next" data-reels-next aria-label="Next reels">
+      <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+    </button>
+  </div>
+</section>
+
+<div class="reel-modal" id="reelModal" hidden>
+  <div class="reel-modal-backdrop" data-reel-close></div>
+  <div class="reel-modal-stage" role="dialog" aria-modal="true" aria-label="Reel player">
+    <button type="button" class="reel-modal-close-btn" data-reel-close aria-label="Close reel">
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="reel-modal-arrow reel-modal-arrow-prev" data-reel-carousel-prev aria-label="Previous reel">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+    </button>
+    <div class="reel-modal-rail" data-reel-rail>
+      {% for reel in home_reels %}
+      <article
+        class="reel-modal-slide"
+        data-reel-slide
+        data-reel-index="{{ forloop.counter0 }}"
+        data-reel-code="{{ reel.code }}"
+        data-reel-video="{{ reel.video_url }}"
+        data-reel-poster="{{ reel.thumbnail }}"
+      >
+        <video
+          class="reel-modal-slide-video"
+          {% if reel.thumbnail %}poster="{{ reel.thumbnail }}"{% endif %}
+          playsinline
+          loop
+          preload="metadata"
+        ></video>
+        <button type="button" class="reel-modal-tap" data-reel-tap aria-label="Play or pause reel"></button>
+        <div class="reel-modal-actions">
+          <button type="button" class="reel-modal-btn reel-modal-close-inline" data-reel-close aria-label="Close reel">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="reel-modal-btn" data-reel-sound aria-label="Toggle sound" aria-pressed="true">
+            <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="reel-modal-btn reel-modal-like" data-reel-like aria-label="Like reel" aria-pressed="false">
+            <i class="fa-regular fa-heart" aria-hidden="true"></i>
+          </button>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    <button type="button" class="reel-modal-arrow reel-modal-arrow-next" data-reel-carousel-next aria-label="Next reel">
+      <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+    </button>
+  </div>
+</div>
+{% endif %}
+
+<section class="amoga-home-banner" aria-label="Amoga Decor">
+  {# Recommended artwork: 1920 × 465 px (wide landscape) #}
+  <a class="amoga-home-banner-link" href="{% url 'amoga_decor' %}">
+    <img
+      class="amoga-home-banner-img"
+      src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1920&h=465&q=80"
+      alt="Amoga Decor — bespoke event décor"
+      loading="lazy"
+      width="1920"
+      height="465"
+    />
+    <div class="amoga-home-banner-veil" aria-hidden="true"></div>
+    <div class="amoga-home-banner-copy">
+      <img
+        src="{% static 'images/ribbon/amoga-decors.webp' %}"
+        alt=""
+        class="amoga-home-banner-mark"
+        loading="lazy"
+      />
+      <p class="amoga-home-banner-brand">Amoga Decor</p>
+      <h2>Bespoke décor for moments that linger</h2>
+      <p class="amoga-home-banner-sub">
+        Florals, lighting, and custom styling — crafted as our décor atelier under Event Rental.
+      </p>
+      <span class="amoga-home-banner-cta">
+        Enquire now <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+      </span>
+    </div>
+  </a>
 </section>
 
 <section class="ss-showcase" aria-label="Signature Seating">

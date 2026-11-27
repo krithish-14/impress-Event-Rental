@@ -14,7 +14,7 @@ SIGNATURE_SEATING_BRAND = {
     "sort_order": 2,
 }
 
-# Collections only — products are added from Admin → View products.
+# Collections — products are loaded from static/images/signature-seating/products/
 SIGNATURE_SEATING_COLLECTIONS = [
     {
         "slug": "ss-sofa",
@@ -25,8 +25,8 @@ SIGNATURE_SEATING_COLLECTIONS = [
         "icon": "fa-solid fa-couch",
         "sort_order": 1,
         "featured_on_home": False,
-        "image_url": "/static/images/ribbon/signature-seating.webp",
-        "products": [],
+        "image_url": "/static/images/signature-seating/sofa.webp",
+        "products_folder": "sofa",
     },
     {
         "slug": "ss-diwan",
@@ -37,8 +37,8 @@ SIGNATURE_SEATING_COLLECTIONS = [
         "icon": "fa-solid fa-bed",
         "sort_order": 2,
         "featured_on_home": False,
-        "image_url": "/static/images/ribbon/signature-seating.webp",
-        "products": [],
+        "image_url": "/static/images/signature-seating/diwan.webp",
+        "products_folder": "diwan",
     },
     {
         "slug": "ss-chairs",
@@ -49,7 +49,7 @@ SIGNATURE_SEATING_COLLECTIONS = [
         "icon": "fa-solid fa-chair",
         "sort_order": 3,
         "featured_on_home": False,
-        "image_url": "/static/images/ribbon/signature-seating.webp",
-        "products": [],
+        "image_url": "/static/images/signature-seating/chair.webp",
+        "products_folder": "chairs",
     },
 ]

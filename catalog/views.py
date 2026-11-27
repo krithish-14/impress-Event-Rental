@@ -26,18 +26,27 @@ HOME_REEL_CODES = [
 ]
 
 
-def _reel_media_url(filename):
-    path = Path(settings.MEDIA_ROOT) / "reels" / filename
-    if not path.is_file():
-        return ""
-    return f"{settings.MEDIA_URL.rstrip('/')}/reels/{filename}"
+def _reel_file_url(filename):
+    """Prefer static videos (deployed on Render); fall back to local media cache."""
+    from django.templatetags.static import static as static_url
+
+    static_rel = Path("videos") / "reels" / filename
+    static_src = Path(settings.BASE_DIR) / "static" / static_rel
+    static_built = Path(settings.STATIC_ROOT) / static_rel
+    if static_src.is_file() or static_built.is_file():
+        return static_url(static_rel.as_posix())
+
+    media_path = Path(settings.MEDIA_ROOT) / "reels" / filename
+    if media_path.is_file():
+        return f"{settings.MEDIA_URL.rstrip('/')}/reels/{filename}"
+    return ""
 
 
 def _home_reels():
     reels = []
     for code in HOME_REEL_CODES:
-        video = _reel_media_url(f"{code}.mp4")
-        poster = _reel_media_url(f"{code}.jpg")
+        video = _reel_file_url(f"{code}.mp4")
+        poster = _reel_file_url(f"{code}.jpg")
         if not video:
             continue
         reels.append(

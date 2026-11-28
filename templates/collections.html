@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Collections — {{ site_name }}{% endblock %}
+{% block body_class %}collections-hub-page{% endblock %}
+
+{% block extra_head %}
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="{% static 'css/collections-hub.css' %}?v=5" />
+{% endblock %}
+
+{% block content %}
+<section class="nlv2_bredcrumb_wrapper">
+  <div class="banner-content"><h1>Collections</h1></div>
+</section>
+
+<section class="chub-section">
+  <div class="chub-layout">
+    <button type="button" class="chub-filter-backdrop" id="chubFilterBackdrop" aria-hidden="true" tabindex="-1"></button>
+
+    <aside class="chub-filter" id="chubFilterPanel" aria-label="Collection filters">
+      <div class="chub-filter-card">
+        <div class="chub-filter-head">
+          <h2>Filter</h2>
+          <button type="button" class="chub-filter-close" id="chubFilterClose" aria-label="Close filters">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <form class="chub-filter-form" method="get" action="{% url 'collections' %}" id="chubFilterForm">
+          <div class="chub-filter-group">
+            <p class="chub-filter-label">Brand</p>
+            <div class="chub-brand-list" role="radiogroup" aria-label="Brand">
+              <label class="chub-brand-option{% if not active_brand %} is-active{% endif %}">
+                <input type="radio" name="brand" value="" {% if not active_brand %}checked{% endif %} />
+                <span>All brands</span>
+              </label>
+              {% for brand in hub_brands %}
+              <label class="chub-brand-option{% if active_brand and active_brand.slug == brand.slug %} is-active{% endif %}">
+                <input type="radio" name="brand" value="{{ brand.slug }}" {% if active_brand and active_brand.slug == brand.slug %}checked{% endif %} />
+                <span>{{ brand.short_name|default:brand.name }}</span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="chub-filter-group">
+            <label class="chub-filter-label" for="chubProductSelect">Product</label>
+            <div class="chub-select-wrap">
+              <select name="product" id="chubProductSelect" class="chub-select">
+                <option value="">All products</option>
+                {% for cat in product_options %}
+                <option
+                  value="{{ cat.slug }}"
+                  {% if active_product and active_product.slug == cat.slug %}selected{% endif %}
+                  data-brand="{{ cat.brand.slug }}"
+                >
+                  {% if not active_brand and cat.brand %}{{ cat.brand.short_name|default:cat.brand.name }} · {% endif %}{{ cat.nav_label|default:cat.name }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="chub-filter-actions">
+            <button type="button" class="chub-filter-reset" id="chubFilterReset">Clear</button>
+            <button type="submit" class="chub-filter-apply" id="chubFilterApply">Show results</button>
+          </div>
+        </form>
+
+        {{ brand_products_map|json_script:"chubBrandProducts" }}
+      </div>
+    </aside>
+
+    <div class="chub-main">
+      <div class="chub-toolbar">
+        <div class="chub-toolbar-top">
+          <div class="chub-toolbar-copy">
+            <h2 id="chubHeading">{{ heading }}</h2>
+            <p id="chubCount">{{ product_count }} product{{ product_count|pluralize }}</p>
+          </div>
+          <button type="button" class="chub-filter-open" id="chubFilterOpen" aria-controls="chubFilterPanel" aria-expanded="false">
+            <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+            <span>Filter</span>
+            <span class="chub-filter-badge" id="chubFilterBadge" hidden>0</span>
+          </button>
+        </div>
+
+        <div class="chub-toolbar-controls">
+          <div class="chub-search">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <input
+              type="search"
+              id="chubSearch"
+              placeholder="Search products…"
+              autocomplete="off"
+              aria-label="Search products"
+            />
+          </div>
+
+          <div class="chub-grid-bar" role="group" aria-label="Layout">
+            <button type="button" class="chub-grid-btn" data-grid="1" aria-label="1 column" aria-pressed="false">
+              <span class="chub-grid-icon chub-grid-icon-1" aria-hidden="true"><i></i></span>
+            </button>
+            <button type="button" class="chub-grid-btn" data-grid="2" aria-label="2 columns" aria-pressed="false">
+              <span class="chub-grid-icon" aria-hidden="true"><i></i><i></i></span>
+            </button>
+            <button type="button" class="chub-grid-btn active" data-grid="3" aria-label="3 columns" aria-pressed="true">
+              <span class="chub-grid-icon" aria-hidden="true"><i></i><i></i><i></i></span>
+            </button>
+            <button type="button" class="chub-grid-btn" data-grid="4" aria-label="4 columns" aria-pressed="false">
+              <span class="chub-grid-icon" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="chub-active-chips" id="chubActiveChips" hidden></div>
+      </div>
+
+      <div class="chub-grid grid-cols-3 is-ready" id="product-grid">
+        {% include "partials/collection_cards.html" %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/collection.js' %}?v=2"></script>
+<script src="{% static 'js/collections-hub.js' %}?v=3"></script>
+{% endblock %}

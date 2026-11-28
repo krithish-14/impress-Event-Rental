@@ -72,11 +72,13 @@
       if (!productCard) return;
       store.addToCart(itemFromCard(productCard, readQty(productCard)));
       store.updateCounts();
+      var defaultLabel = cartBtn.getAttribute("data-label") || cartBtn.textContent || "Add to cart";
+      cartBtn.setAttribute("data-label", defaultLabel);
       cartBtn.classList.add("is-added");
       cartBtn.textContent = "Added";
       window.setTimeout(function () {
         cartBtn.classList.remove("is-added");
-        cartBtn.textContent = "Add to cart";
+        cartBtn.textContent = defaultLabel;
       }, 1200);
     }
   });

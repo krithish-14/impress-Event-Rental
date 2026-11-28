@@ -10,6 +10,7 @@ urlpatterns = [
     path("forgot-password/", auth_views.forgot_view, name="forgot_password"),
     path("reset-password/", auth_views.reset_view, name="reset_password"),
     path("brands/<slug:slug>/", views.brand_page, name="brand"),
+    path("collections/", views.collections_hub, name="collections"),
     path("collections/<slug:slug>/", views.collection, name="collection"),
     path("product/<slug:slug>/", views.product_detail, name="product_detail"),
     path("product/<slug:slug>/reviews/", review_views.submit_review, name="review_submit"),

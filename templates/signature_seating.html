@@ -6,7 +6,7 @@
 
 {% block extra_head %}
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="{% static 'css/signature-seating.css' %}?v=13" />
+<link rel="stylesheet" href="{% static 'css/signature-seating.css' %}?v=14" />
 {% endblock %}
 
 {% block site_header %}
@@ -72,7 +72,7 @@
   <h2>Shop by Categories</h2>
   <div class="ss-category-grid">
     {% for item in categories %}
-    <a class="ss-category-card" href="{% url 'collection' item.slug %}">
+    <a class="ss-category-card ss-category-{{ item.slug }}" href="{% url 'collection' item.slug %}">
       <span class="ss-category-media">
         {% if item.photo_url %}
         <img src="{{ item.photo_url }}" alt="{{ item.name }}" loading="lazy" />

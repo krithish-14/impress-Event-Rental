@@ -1,0 +1,65 @@
+{% for product in products %}
+<article
+  class="uc-card product-card"
+  data-slug="{{ product.slug }}"
+  data-name="{{ product.name }}"
+  data-image="{{ product.photo_url }}"
+  data-url="{{ product.get_absolute_url }}"
+  data-category="{{ product.category.nav_label }}"
+  data-brand="{{ product.category.brand.slug }}"
+>
+  <div class="uc-card-stage">
+    <button
+      type="button"
+      class="uc-wish card-wish-btn"
+      aria-label="Add {{ product.name }} to wishlist"
+      data-slug="{{ product.slug }}"
+      data-name="{{ product.name }}"
+      data-image="{{ product.photo_url }}"
+      data-url="{{ product.get_absolute_url }}"
+      data-category="{{ product.category.nav_label }}"
+    >
+      <i class="fa-regular fa-heart"></i>
+    </button>
+    <a href="{{ product.get_absolute_url }}" class="uc-card-media product-card-media">
+      <img src="{{ product.photo_url }}" alt="{{ product.name }}" loading="lazy" />
+    </a>
+    <span class="uc-card-index" aria-hidden="true">
+      {% if forloop.counter < 10 %}0{% endif %}{{ forloop.counter }}
+    </span>
+  </div>
+
+  <div class="uc-card-meta">
+    <h3 class="uc-card-name">
+      <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+    </h3>
+    <p class="uc-card-size{% if not product.size %} is-empty{% endif %}">
+      {% if product.size %}{{ product.size }}{% else %}&nbsp;{% endif %}
+    </p>
+
+    <div class="uc-card-actions card-shop-actions">
+      <div class="uc-card-actions-row">
+        <div class="uc-qty card-qty-stepper" role="group" aria-label="Quantity for {{ product.name }}">
+          <button type="button" class="card-qty-btn" data-qty-delta="-1" aria-label="Decrease quantity">−</button>
+          <input
+            type="number"
+            class="card-qty-input"
+            value="1"
+            min="1"
+            max="9999"
+            inputmode="numeric"
+            aria-label="Quantity"
+          />
+          <button type="button" class="card-qty-btn" data-qty-delta="1" aria-label="Increase quantity">+</button>
+        </div>
+        <button type="button" class="uc-add card-add-cart">ADD TO CART</button>
+      </div>
+      <a href="{{ product.get_absolute_url }}" class="uc-details">
+        VIEW DETAILS <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+</article>
+{% empty %}
+<p class="chub-empty">No products match this filter.</p>
+{% endfor %}

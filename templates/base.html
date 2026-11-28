@@ -11,11 +11,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Jost:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=17" />
-  <link rel="stylesheet" href="{% static 'css/gallery.css' %}?v=5" />
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=18" />
+  <link rel="stylesheet" href="{% static 'css/gallery.css' %}?v=7" />
   <link rel="stylesheet" href="{% static 'css/contact.css' %}" />
   <link rel="stylesheet" href="{% static 'css/product-detail.css' %}?v=14" />
-  <link rel="stylesheet" href="{% static 'css/extras.css' %}?v=49" />
+  <link rel="stylesheet" href="{% static 'css/extras.css' %}?v=50" />
   <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=10" />
   {% block extra_head %}{% endblock %}
 </head>
@@ -31,18 +31,18 @@
         <ul class="nav-menu">
           <li class="{% if url_name == 'home' %}active{% endif %}"><a href="{% url 'home' %}">HOME</a></li>
           <li class="separator"></li>
-          <li class="has-dropdown has-collections-menu {% if url_name == 'collection' or url_name == 'product_detail' or url_name == 'brand' %}active{% endif %}">
-            <a href="#" class="dropdown-toggle" aria-haspopup="true">COLLECTIONS</a>
+          <li class="has-dropdown has-collections-menu {% if url_name == 'collections' or url_name == 'collection' or url_name == 'product_detail' or url_name == 'brand' %}active{% endif %}">
+            <a href="{% url 'collections' %}" class="dropdown-toggle" aria-haspopup="true">COLLECTIONS</a>
             <div class="submenu collections-mega" aria-label="Collections submenu">
               {% for nav_brand in nav_brands %}
               <div class="collections-mega-col">
-                <a class="collections-mega-brand" href="{% url 'brand' nav_brand.slug %}">
+                <a class="collections-mega-brand" href="{% url 'collections' %}?brand={{ nav_brand.slug }}">
                   {{ nav_brand.short_name|default:nav_brand.name }}
                 </a>
                 <ul>
                   {% for cat in nav_brand.categories.all %}
                   <li>
-                    <a href="{% url 'collection' cat.slug %}" class="{% if category and category.slug == cat.slug %}active{% endif %}">
+                    <a href="{% url 'collections' %}?brand={{ nav_brand.slug }}&product={{ cat.slug }}" class="{% if active_product and active_product.slug == cat.slug %}active{% endif %}">
                       {{ cat.nav_label }}
                     </a>
                   </li>
@@ -114,8 +114,10 @@
           </ul>
         </div>
         {% else %}
-        <a href="{% url 'login' %}" class="header-btn header-btn-login{% if url_name == 'login' or url_name == 'forgot_password' or url_name == 'reset_password' %} is-current{% endif %}">LOGIN</a>
-        <a href="{% url 'signup' %}" class="header-btn header-btn-signup{% if url_name == 'signup' %} is-current{% endif %}">SIGN UP</a>
+        <a href="{% url 'login' %}" class="header-signin{% if url_name == 'login' or url_name == 'signup' or url_name == 'forgot_password' or url_name == 'reset_password' %} is-current{% endif %}" aria-label="Sign In">
+          <i class="fa-regular fa-user"></i>
+          <span>Sign In</span>
+        </a>
         {% endif %}
         <a href="{% url 'wishlist' %}" class="header-icon{% if url_name == 'wishlist' %} is-current{% endif %}" aria-label="Wishlist">
           <i class="fa-regular fa-heart"></i>
@@ -170,8 +172,9 @@
           </ul>
         </div>
         {% else %}
-        <a href="{% url 'login' %}" class="header-icon" aria-label="Login or sign up">
+        <a href="{% url 'login' %}" class="header-signin header-signin-mobile{% if url_name == 'login' or url_name == 'signup' or url_name == 'forgot_password' or url_name == 'reset_password' %} is-current{% endif %}" aria-label="Sign In">
           <i class="fa-regular fa-user"></i>
+          <span>Sign In</span>
         </a>
         {% endif %}
         <a href="{% url 'wishlist' %}" class="header-icon{% if url_name == 'wishlist' %} is-current{% endif %}" aria-label="Wishlist">
@@ -188,15 +191,16 @@
     <div class="mobile-menu" id="mobileMenu">
       <ul>
         <li><a href="{% url 'home' %}">HOME</a></li>
-        <li class="mobile-dropdown {% if url_name == 'collection' or url_name == 'product_detail' or url_name == 'brand' %}active{% endif %}">
+        <li class="mobile-dropdown {% if url_name == 'collections' or url_name == 'collection' or url_name == 'product_detail' or url_name == 'brand' %}active{% endif %}">
           <button class="submenu-toggle" type="button" id="mobileCollectionsBtn">COLLECTIONS +</button>
           <ul class="mobile-submenu" id="mobileCollections">
+            <li><a href="{% url 'collections' %}">All collections</a></li>
             {% for nav_brand in nav_brands %}
             <li class="mobile-brand-label">
-              <a href="{% url 'brand' nav_brand.slug %}">{{ nav_brand.short_name|default:nav_brand.name }}</a>
+              <a href="{% url 'collections' %}?brand={{ nav_brand.slug }}">{{ nav_brand.short_name|default:nav_brand.name }}</a>
             </li>
             {% for cat in nav_brand.categories.all %}
-            <li><a href="{% url 'collection' cat.slug %}">{{ cat.nav_label }}</a></li>
+            <li><a href="{% url 'collections' %}?brand={{ nav_brand.slug }}&product={{ cat.slug }}">{{ cat.nav_label }}</a></li>
             {% empty %}
             <li><span class="collections-mega-empty">No collections yet</span></li>
             {% endfor %}
@@ -217,9 +221,8 @@
           </form>
         </li>
         {% else %}
-        <li class="mobile-auth-btns">
-          <a href="{% url 'login' %}" class="header-btn header-btn-login">LOGIN</a>
-          <a href="{% url 'signup' %}" class="header-btn header-btn-signup">SIGN UP</a>
+        <li>
+          <a href="{% url 'login' %}">SIGN IN</a>
         </li>
         {% endif %}
       </ul>
@@ -262,7 +265,7 @@
         <div class="footer-quick-links">
           <ul>
             <li><a href="{% url 'home' %}">Home</a></li>
-            <li><a href="{% url 'collection' 'arabian-tent' %}">Collections</a></li>
+            <li><a href="{% url 'collections' %}">Collections</a></li>
             <li><a href="{% url 'event_solutions' %}">Event Solutions</a></li>
             <li><a href="{% url 'gallery' %}">Gallery</a></li>
             <li><a href="{% url 'contact' %}">Contact Us</a></li>
@@ -294,11 +297,10 @@
       <button type="button" class="auth-modal-close" data-auth-close aria-label="Close">
         <i class="fa-solid fa-xmark"></i>
       </button>
-      <h2 id="authModalTitle">Please log in</h2>
-      <p class="auth-lead">Create an account or log in to continue.</p>
+      <h2 id="authModalTitle">Please sign in</h2>
+      <p class="auth-lead">Sign in or create an account to continue.</p>
       <div class="auth-modal-actions">
-        <a href="{% url 'login' %}" class="header-btn header-btn-login" id="authModalLogin">Login</a>
-        <a href="{% url 'signup' %}" class="header-btn header-btn-signup" id="authModalSignup">Sign up</a>
+        <a href="{% url 'login' %}" class="header-btn header-btn-signup" id="authModalLogin">Sign In</a>
       </div>
     </div>
   </div>
@@ -308,7 +310,7 @@
   <script src="{% static 'js/store.js' %}?v=11"></script>
   <script src="{% static 'js/main.js' %}?v=4"></script>
   <script src="{% static 'js/auth.js' %}"></script>
-  <script src="{% static 'js/auth-modal.js' %}?v=10"></script>
+  <script src="{% static 'js/auth-modal.js' %}?v=11"></script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -770,6 +770,19 @@
   height: 34px;
 }
 
+.mobile-header .header-signin {
+  min-width: 40px;
+  padding: 0 2px;
+}
+
+.mobile-header .header-signin i {
+  font-size: 16px;
+}
+
+.mobile-header .header-signin span {
+  font-size: 9px;
+}
+
 button.header-icon,
 .mobile-header-logout {
   border: none;

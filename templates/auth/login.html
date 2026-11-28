@@ -1,57 +1,93 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Login — {{ site_name }}{% endblock %}
+{% block title %}{% if auth_mode == 'signup' %}Sign up{% else %}Login{% endif %} — {{ site_name }}{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/auth.css' %}" />
+<link rel="stylesheet" href="{% static 'css/auth.css' %}?v=2" />
 {% endblock %}
 
 {% block content %}
 <section class="nlv2_bredcrumb_wrapper">
-  <div class="banner-content"><h1>Login</h1></div>
+  <div class="banner-content"><h1>{% if auth_mode == 'signup' %}Sign up{% else %}Login{% endif %}</h1></div>
 </section>
 
 <div class="auth-page">
   <div class="auth-card">
-    <h2>Welcome back</h2>
-    <p class="auth-lead">Log in with your mobile number or email to view products and manage your quotes.</p>
+    <h2 class="auth-heading" data-login-heading {% if auth_mode == 'signup' %}hidden{% endif %}>Welcome back</h2>
+    <h2 class="auth-heading" data-signup-heading {% if auth_mode != 'signup' %}hidden{% endif %}>Create your account</h2>
+    <p class="auth-lead" data-login-lead {% if auth_mode == 'signup' %}hidden{% endif %}>Log in with your mobile number or email to view products and manage your quotes.</p>
+    <p class="auth-lead" data-signup-lead {% if auth_mode != 'signup' %}hidden{% endif %}>Register with your mobile number and email. You can log in with either one.</p>
     {% if error %}
     <div class="alert alert-error" style="margin-bottom: 18px;">{{ error }}</div>
     {% endif %}
-    <div class="auth-method-tabs" role="tablist">
-      <button type="button" class="auth-method-tab{% if login_method != 'email' %} is-active{% endif %}" data-method="phone">Phone login</button>
-      <button type="button" class="auth-method-tab{% if login_method == 'email' %} is-active{% endif %}" data-method="email">Email login</button>
+    <div class="auth-method-tabs" role="tablist" aria-label="Account">
+      <button type="button" class="auth-method-tab{% if auth_mode != 'signup' %} is-active{% endif %}" data-auth-tab="login" role="tab" aria-selected="{% if auth_mode != 'signup' %}true{% else %}false{% endif %}">Login</button>
+      <button type="button" class="auth-method-tab{% if auth_mode == 'signup' %} is-active{% endif %}" data-auth-tab="signup" role="tab" aria-selected="{% if auth_mode == 'signup' %}true{% else %}false{% endif %}">Signup</button>
     </div>
-    <form class="auth-form contact-form" method="post" novalidate>
-      {% csrf_token %}
-      {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}" />{% endif %}
-      <input type="hidden" name="login_method" id="loginMethod" value="{{ login_method|default:'phone' }}" />
-      <div class="form-group" id="phoneGroup" {% if login_method == 'email' %}hidden{% endif %}>
-        <label for="phone">Mobile number</label>
-        <input type="tel" id="phone" name="phone" inputmode="numeric" autocomplete="tel" maxlength="15" placeholder="10-digit mobile number" value="{{ phone }}" {% if login_method != 'email' %}required{% endif %} />
-      </div>
-      <div class="form-group" id="emailGroup" {% if login_method != 'email' %}hidden{% endif %}>
-        <label for="email">Email address</label>
-        <input type="email" id="email" name="email" autocomplete="email" placeholder="Enter your email address" value="{{ email }}" {% if login_method == 'email' %}required{% endif %} />
-      </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <div class="auth-password-wrap">
-          <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="Enter your password" />
-          <button type="button" class="auth-toggle-password" data-target="password" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
+
+    <div data-auth-panel="login" {% if auth_mode == 'signup' %}hidden{% endif %}>
+      <form class="auth-form contact-form" method="post" action="{% url 'login' %}" novalidate>
+        {% csrf_token %}
+        {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}" />{% endif %}
+        <div class="form-group">
+          <label for="login_phone">Mobile number</label>
+          <input type="tel" id="login_phone" name="phone" inputmode="numeric" autocomplete="tel" maxlength="15" placeholder="10-digit mobile number" value="{{ phone }}" />
         </div>
-      </div>
-      <p class="auth-forgot"><a href="{% url 'forgot_password' %}">Forgot password?</a></p>
-      <button type="submit" class="submit-btn">Log in</button>
-    </form>
-    <div class="auth-links">
-      New here? <a href="{% url 'signup' %}{% if next_url %}?next={{ next_url|urlencode }}{% endif %}">Create an account</a>
+        <div class="form-group">
+          <label for="login_email">Email address</label>
+          <input type="email" id="login_email" name="email" autocomplete="email" placeholder="Enter your email address" value="{{ email }}" />
+        </div>
+        <div class="form-group">
+          <label for="login_password">Password</label>
+          <div class="auth-password-wrap">
+            <input type="password" id="login_password" name="password" required autocomplete="current-password" placeholder="Enter your password" />
+            <button type="button" class="auth-toggle-password" data-target="login_password" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
+          </div>
+        </div>
+        <p class="auth-forgot"><a href="{% url 'forgot_password' %}">Forgot password?</a></p>
+        <button type="submit" class="submit-btn">Log in</button>
+      </form>
+    </div>
+
+    <div data-auth-panel="signup" {% if auth_mode != 'signup' %}hidden{% endif %}>
+      <form class="auth-form contact-form" method="post" action="{% url 'signup' %}" novalidate>
+        {% csrf_token %}
+        {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}" />{% endif %}
+        <div class="form-group">
+          <label for="signup_name">Full name</label>
+          <input type="text" id="signup_name" name="name" required autocomplete="name" placeholder="Enter your full name" value="{{ form.name }}" />
+        </div>
+        <div class="form-group">
+          <label for="signup_email">Email address</label>
+          <input type="email" id="signup_email" name="email" required autocomplete="email" placeholder="Enter your email address" value="{{ form.email }}" />
+        </div>
+        <div class="form-group">
+          <label for="signup_phone">Mobile number</label>
+          <input type="tel" id="signup_phone" name="phone" required inputmode="numeric" autocomplete="tel" maxlength="15" placeholder="10-digit mobile number" value="{{ form.phone }}" />
+          <span class="auth-hint">Indian mobile number, 10 digits. +91 is optional.</span>
+        </div>
+        <div class="form-group">
+          <label for="signup_password">Password</label>
+          <div class="auth-password-wrap">
+            <input type="password" id="signup_password" name="password" required autocomplete="new-password" minlength="8" placeholder="Create a password" />
+            <button type="button" class="auth-toggle-password" data-target="signup_password" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="signup_password_confirm">Confirm password</label>
+          <div class="auth-password-wrap">
+            <input type="password" id="signup_password_confirm" name="password_confirm" required autocomplete="new-password" minlength="8" placeholder="Re-enter your password" />
+            <button type="button" class="auth-toggle-password" data-target="signup_password_confirm" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
+          </div>
+        </div>
+        <button type="submit" class="submit-btn">Create account</button>
+      </form>
     </div>
   </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/auth-method.js' %}"></script>
+<script src="{% static 'js/auth-tabs.js' %}?v=1"></script>
 {% endblock %}

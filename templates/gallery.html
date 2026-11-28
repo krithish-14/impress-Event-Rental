@@ -2,9 +2,10 @@
 {% load static %}
 
 {% block title %}Gallery — {{ site_name }}{% endblock %}
+{% block body_class %}gallery-page{% endblock %}
 
 {% block extra_head %}
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
 {% endblock %}
 
 {% block content %}
@@ -13,53 +14,106 @@
 </section>
 
 <section class="gallery-section" id="gallerySection">
-  {% if gallery_brands %}
-  <nav class="gallery-brand-filters" aria-label="Filter gallery by brand">
-    <a href="{% url 'gallery' %}" class="gallery-filter{% if not active_brand %} is-active{% endif %}">All brands</a>
-    {% for brand in gallery_brands %}
-    <a href="{% url 'gallery' %}?brand={{ brand.slug }}" class="gallery-filter{% if active_brand and active_brand.slug == brand.slug %} is-active{% endif %}">{{ brand.short_name|default:brand.name }}</a>
-    {% endfor %}
-  </nav>
-  {% endif %}
+  <div class="gallery-layout">
+    <button type="button" class="gallery-filter-backdrop" id="galleryFilterBackdrop" aria-hidden="true" tabindex="-1"></button>
 
-  <nav class="gallery-filters" aria-label="Filter gallery by collection">
-    <button type="button" class="gallery-filter is-active" data-gallery-filter="all">All</button>
-    {% for cat in categories %}
-    <button type="button" class="gallery-filter" data-gallery-filter="{{ cat.slug }}">{{ cat.name }}</button>
-    {% endfor %}
-  </nav>
+    <aside class="gallery-filter" id="galleryFilterPanel" aria-label="Gallery filters">
+      <div class="gallery-filter-card">
+        <div class="gallery-filter-head">
+          <h2>Filter</h2>
+          <button type="button" class="gallery-filter-close" id="galleryFilterClose" aria-label="Close filters">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
 
-  {% for cat in categories %}
-  <div class="gallery-group" data-gallery-group="{{ cat.slug }}">
-    <div class="gallery-group-head">
-      <h2>{{ cat.name }}</h2>
-      <a href="{% url 'collection' cat.slug %}">View collection</a>
-    </div>
-    <div class="gallery-mosaic">
-      {% for product in cat.products.all %}
-      <a
-        href="{{ product.get_absolute_url }}"
-        class="gallery-tile"
-        data-gallery-item
-        data-name="{{ product.name }}"
-        data-category="{{ cat.name }}"
-        data-image="{{ product.photo_url }}"
-      >
-        <span class="gallery-tile-media">
-          <img src="{{ product.photo_url }}" alt="{{ product.name }}" loading="lazy" />
-        </span>
-        <span class="gallery-tile-caption">
-          <span class="gallery-tile-title">{{ product.name }}</span>
-        </span>
-      </a>
-      {% empty %}
-      <p class="gallery-empty">No products in this collection yet.</p>
-      {% endfor %}
+        <form class="gallery-filter-form" method="get" action="{% url 'gallery' %}" id="galleryFilterForm">
+          <div class="gallery-filter-group">
+            <p class="gallery-filter-label">Brand</p>
+            <div class="gallery-brand-options" role="radiogroup" aria-label="Brand">
+              <label class="gallery-brand-option{% if not active_brand %} is-active{% endif %}">
+                <input type="radio" name="brand" value="" {% if not active_brand %}checked{% endif %} />
+                <span>All brands</span>
+              </label>
+              {% for brand in gallery_brands %}
+              <label class="gallery-brand-option{% if active_brand and active_brand.slug == brand.slug %} is-active{% endif %}">
+                <input type="radio" name="brand" value="{{ brand.slug }}" {% if active_brand and active_brand.slug == brand.slug %}checked{% endif %} />
+                <span>{{ brand.short_name|default:brand.name }}</span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="gallery-filter-group">
+            <label class="gallery-filter-label" for="galleryProductSelect">Product</label>
+            <div class="gallery-select-wrap">
+              <select name="product" id="galleryProductSelect" class="gallery-select">
+                <option value="">All products</option>
+                {% for cat in product_options %}
+                <option
+                  value="{{ cat.slug }}"
+                  {% if active_collection and active_collection.slug == cat.slug %}selected{% endif %}
+                  data-brand="{{ cat.brand.slug }}"
+                >
+                  {% if not active_brand and cat.brand %}{{ cat.brand.short_name|default:cat.brand.name }} · {% endif %}{{ cat.nav_label|default:cat.name }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="gallery-filter-actions">
+            <button type="button" class="gallery-filter-reset" id="galleryFilterReset">Clear</button>
+            <button type="submit" class="gallery-filter-apply" id="galleryFilterApply">Show results</button>
+          </div>
+        </form>
+
+        {{ brand_products_map|json_script:"galleryBrandProducts" }}
+      </div>
+    </aside>
+
+    <div class="gallery-main">
+      <div class="gallery-toolbar">
+        <div class="gallery-toolbar-top">
+          <div class="gallery-toolbar-copy">
+            <h2 id="galleryHeading">{{ heading }}</h2>
+            <p id="galleryCount">{{ count_label }}</p>
+          </div>
+          <div class="gallery-toolbar-actions">
+            <a
+              href="{% if active_collection and active_brand %}{% url 'collections' %}?brand={{ active_brand.slug }}&product={{ active_collection.slug }}{% elif active_brand %}{% url 'brand' active_brand.slug %}{% else %}#{% endif %}"
+              class="gallery-shop-link"
+              id="galleryShopLink"
+              {% if not active_brand %}hidden{% endif %}
+            >
+              {% if active_collection %}Shop collection{% else %}View brand{% endif %}
+            </a>
+            <button type="button" class="gallery-filter-open" id="galleryFilterOpen" aria-controls="galleryFilterPanel" aria-expanded="false">
+              <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+              <span>Filter</span>
+              <span class="gallery-filter-badge" id="galleryFilterBadge" hidden>0</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="gallery-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input
+            type="search"
+            id="gallerySearch"
+            placeholder="Search gallery…"
+            autocomplete="off"
+            aria-label="Search gallery"
+          />
+        </div>
+
+        <div class="gallery-active-chips" id="galleryActiveChips" hidden></div>
+      </div>
+
+      <div class="gallery-results is-ready" id="galleryResults">
+        {% include "partials/gallery_results.html" %}
+      </div>
     </div>
   </div>
-  {% empty %}
-  <p class="gallery-empty">No collections to show yet.</p>
-  {% endfor %}
 </section>
 
 <div class="gallery-lightbox" id="galleryLightbox" hidden>
@@ -74,5 +128,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/gallery-page.js' %}"></script>
+<script src="{% static 'js/gallery-page.js' %}?v=3"></script>
 {% endblock %}

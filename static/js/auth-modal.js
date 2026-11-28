@@ -3,10 +3,8 @@
   if (!modal || window.EVENT_RENTAL_AUTHED) return;
 
   var loginBtn = document.getElementById("authModalLogin");
-  var signupBtn = document.getElementById("authModalSignup");
   var lead = modal.querySelector(".auth-lead");
   var loginBase = loginBtn ? loginBtn.getAttribute("href") : "/login/";
-  var signupBase = signupBtn ? signupBtn.getAttribute("href") : "/signup/";
   var defaultLead = lead ? lead.textContent : "";
 
   function withNext(base, nextUrl) {
@@ -17,7 +15,6 @@
   function openAuth(nextUrl, message) {
     var next = nextUrl || window.location.pathname + window.location.search + window.location.hash;
     if (loginBtn) loginBtn.setAttribute("href", withNext(loginBase, next));
-    if (signupBtn) signupBtn.setAttribute("href", withNext(signupBase, next));
     if (lead) lead.textContent = message || defaultLead;
     modal.hidden = false;
     document.body.style.overflow = "hidden";

@@ -250,6 +250,36 @@ body {
   color: #C9973A;
 }
 
+.header-signin {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 46px;
+  padding: 2px 4px;
+  color: #0D4A3E;
+  text-decoration: none;
+  line-height: 1;
+}
+
+.header-signin i {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.header-signin span {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.header-signin:hover,
+.header-signin.is-current {
+  color: #C9973A;
+}
+
 .header-actions .header-icon {
   width: 38px;
   height: 38px;

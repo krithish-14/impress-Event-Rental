@@ -1,0 +1,33 @@
+{% for cat in categories %}
+<div class="gallery-group" data-gallery-group="{{ cat.slug }}" data-gallery-brand="{{ cat.brand.slug }}">
+  {% if not active_collection %}
+  <div class="gallery-group-head">
+    <h3>{{ cat.name }}{% if not active_brand and cat.brand %} · {{ cat.brand.short_name|default:cat.brand.name }}{% endif %}</h3>
+    <a href="{% url 'collections' %}?{% if cat.brand %}brand={{ cat.brand.slug }}&{% endif %}product={{ cat.slug }}">Shop collection</a>
+  </div>
+  {% endif %}
+  <div class="gallery-mosaic">
+    {% for product in cat.products.all %}
+    <a
+      href="{{ product.get_absolute_url }}"
+      class="gallery-tile"
+      data-gallery-item
+      data-name="{{ product.name }}"
+      data-category="{{ cat.name }}"
+      data-image="{{ product.photo_url }}"
+    >
+      <span class="gallery-tile-media">
+        <img src="{{ product.photo_url }}" alt="{{ product.name }}" loading="lazy" />
+      </span>
+      <span class="gallery-tile-caption">
+        <span class="gallery-tile-title">{{ product.name }}</span>
+      </span>
+    </a>
+    {% empty %}
+    <p class="gallery-empty">No products in this collection yet.</p>
+    {% endfor %}
+  </div>
+</div>
+{% empty %}
+<p class="gallery-empty">No collections to show yet.</p>
+{% endfor %}

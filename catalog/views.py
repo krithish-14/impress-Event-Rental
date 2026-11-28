@@ -12,6 +12,9 @@ from django.core.exceptions import ValidationError
 from django.db.models import Prefetch
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
+from django.urls import reverse
+from django.utils.http import urlencode
 from django.views.decorators.http import require_POST
 
 HOME_REEL_CODES = [
@@ -122,27 +125,110 @@ def brand_page(request, slug):
     )
 
 
+def collections_hub(request):
+    brand_slug = (request.GET.get("brand") or "").strip()
+    product_slug = (request.GET.get("product") or request.GET.get("collection") or "").strip()
+    brands = Brand.objects.filter(is_active=True).prefetch_related(
+        Prefetch(
+            "categories",
+            queryset=Category.objects.order_by("sort_order", "name"),
+        )
+    )
+    active_brand = None
+    active_product = None
+    product_options = Category.objects.none()
+
+    if brand_slug:
+        active_brand = get_object_or_404(Brand, slug=brand_slug, is_active=True)
+        product_options = active_brand.categories.all()
+    else:
+        product_options = Category.objects.select_related("brand").order_by(
+            "brand__sort_order", "sort_order", "name"
+        )
+
+    products = (
+        Product.objects.filter(is_active=True)
+        .select_related("category", "category__brand")
+        .order_by(
+            "category__brand__sort_order",
+            "category__sort_order",
+            "sort_order",
+            "name",
+        )
+    )
+    if active_brand:
+        products = products.filter(category__brand=active_brand)
+    if product_slug:
+        active_product = Category.objects.select_related("brand").filter(slug=product_slug).first()
+        if active_product:
+            if active_brand and active_product.brand_id != active_brand.id:
+                active_product = None
+            else:
+                products = products.filter(category=active_product)
+                if not active_brand and active_product.brand_id:
+                    active_brand = active_product.brand
+                    product_options = active_brand.categories.all()
+        else:
+            active_product = None
+
+    brand_products = {"": []}
+    for brand in brands:
+        items = [
+            {
+                "slug": cat.slug,
+                "label": cat.nav_label or cat.name,
+                "brand": brand.slug,
+            }
+            for cat in brand.categories.all()
+        ]
+        brand_products[brand.slug] = items
+        brand_products[""].extend(
+            {
+                "slug": item["slug"],
+                "label": f"{brand.short_name or brand.name} · {item['label']}",
+                "brand": brand.slug,
+            }
+            for item in items
+        )
+
+    product_count = products.count()
+    if active_product:
+        heading = active_product.name
+    elif active_brand:
+        heading = active_brand.short_name or active_brand.name
+    else:
+        heading = "All collections"
+
+    context = {
+        "hub_brands": brands,
+        "active_brand": active_brand,
+        "active_product": active_product,
+        "product_options": product_options,
+        "products": products,
+        "product_count": product_count,
+        "brand_products_map": brand_products,
+        "heading": heading,
+    }
+
+    if request.GET.get("partial") == "1" or request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return JsonResponse(
+            {
+                "html": render_to_string("partials/collection_cards.html", context, request=request),
+                "heading": heading,
+                "count": product_count,
+                "count_label": f"{product_count} product{'s' if product_count != 1 else ''}",
+            }
+        )
+
+    return render(request, "collections.html", context)
+
+
 def collection(request, slug):
     category = get_object_or_404(Category.objects.select_related("brand"), slug=slug)
-    products = category.products.filter(is_active=True)
-    sibling_categories = Category.objects.all()
+    query = {"product": category.slug}
     if category.brand_id:
-        sibling_categories = sibling_categories.filter(brand=category.brand)
-    template = (
-        "ss_collection.html"
-        if category.brand and category.brand.slug == "impress-signature-seating"
-        else "collection.html"
-    )
-    return render(
-        request,
-        template,
-        {
-            "category": category,
-            "products": products,
-            "categories": sibling_categories,
-            "active_brand": category.brand,
-        },
-    )
+        query["brand"] = category.brand.slug
+    return redirect(f"{reverse('collections')}?{urlencode(query)}")
 
 
 def product_detail(request, slug):
@@ -201,28 +287,108 @@ def product_detail(request, slug):
 
 def gallery(request):
     brand_slug = (request.GET.get("brand") or "").strip()
-    brands = Brand.objects.filter(is_active=True)
-    categories = Category.objects.prefetch_related(
+    collection_slug = (
+        request.GET.get("product") or request.GET.get("collection") or ""
+    ).strip()
+    product_qs = Product.objects.filter(is_active=True).order_by(
+        "sort_order", "name"
+    )
+    brands = Brand.objects.filter(is_active=True).prefetch_related(
         Prefetch(
-            "products",
-            queryset=Product.objects.filter(is_active=True).order_by(
-                "sort_order", "name"
+            "categories",
+            queryset=Category.objects.order_by("sort_order", "name").prefetch_related(
+                Prefetch("products", queryset=product_qs)
             ),
         )
+    )
+    categories = Category.objects.prefetch_related(
+        Prefetch("products", queryset=product_qs)
     ).select_related("brand")
     active_brand = None
+    active_collection = None
+    product_options = Category.objects.none()
+
     if brand_slug:
         active_brand = get_object_or_404(Brand, slug=brand_slug, is_active=True)
         categories = categories.filter(brand=active_brand)
-    return render(
-        request,
-        "gallery.html",
-        {
-            "categories": categories,
-            "gallery_brands": brands,
-            "active_brand": active_brand,
-        },
-    )
+        product_options = active_brand.categories.all()
+    else:
+        product_options = Category.objects.select_related("brand").order_by(
+            "brand__sort_order", "sort_order", "name"
+        )
+
+    if collection_slug:
+        active_collection = (
+            Category.objects.select_related("brand").filter(slug=collection_slug).first()
+        )
+        if active_collection:
+            if active_brand and active_collection.brand_id != active_brand.id:
+                active_collection = None
+            else:
+                categories = categories.filter(slug=active_collection.slug)
+                if not active_brand and active_collection.brand_id:
+                    active_brand = active_collection.brand
+                    product_options = active_brand.categories.all()
+        else:
+            active_collection = None
+
+    brand_products = {"": []}
+    for brand in brands:
+        items = [
+            {
+                "slug": cat.slug,
+                "label": cat.nav_label or cat.name,
+                "brand": brand.slug,
+            }
+            for cat in brand.categories.all()
+        ]
+        brand_products[brand.slug] = items
+        brand_products[""].extend(
+            {
+                "slug": item["slug"],
+                "label": f"{brand.short_name or brand.name} · {item['label']}",
+                "brand": brand.slug,
+            }
+            for item in items
+        )
+
+    item_count = sum(len(list(cat.products.all())) for cat in categories)
+    if active_collection:
+        heading = active_collection.name
+    elif active_brand:
+        heading = active_brand.short_name or active_brand.name
+    else:
+        heading = "All collections"
+
+    context = {
+        "categories": categories,
+        "gallery_brands": brands,
+        "active_brand": active_brand,
+        "active_collection": active_collection,
+        "product_options": product_options,
+        "brand_products_map": brand_products,
+        "heading": heading,
+        "item_count": item_count,
+        "count_label": f"{item_count} item{'s' if item_count != 1 else ''}",
+    }
+
+    if request.GET.get("partial") == "1" or request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        shop_url = ""
+        if active_collection and active_brand:
+            shop_url = f"{reverse('collections')}?{urlencode({'brand': active_brand.slug, 'product': active_collection.slug})}"
+        elif active_brand:
+            shop_url = reverse("brand", args=[active_brand.slug])
+        return JsonResponse(
+            {
+                "html": render_to_string("partials/gallery_results.html", context, request=request),
+                "heading": heading,
+                "count_label": context["count_label"],
+                "shop_url": shop_url,
+                "shop_label": "Shop collection" if active_collection else ("View brand" if active_brand else ""),
+            }
+        )
+
+    return render(request, "gallery.html", context)
 
 
 def event_solutions(request):

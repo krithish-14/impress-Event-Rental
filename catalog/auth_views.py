@@ -7,8 +7,9 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils import timezone
-from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from django.views.decorators.http import require_http_methods
 
 from .models import CustomerProfile
@@ -52,6 +53,21 @@ def _login_method(request):
     return "email" if method == "email" else "phone"
 
 
+def _auth_page(request, *, auth_mode="login", error="", phone="", email="", form=None, next_url=None):
+    return render(
+        request,
+        "auth/login.html",
+        {
+            "auth_mode": "signup" if auth_mode == "signup" else "login",
+            "error": error,
+            "phone": phone,
+            "email": email,
+            "form": form or {"name": "", "phone": "", "email": ""},
+            "next_url": next_url if next_url is not None else _safe_next(request),
+        },
+    )
+
+
 def login_view(request):
     if request.user.is_authenticated:
         return redirect(_safe_next(request) or "home")
@@ -60,15 +76,17 @@ def login_view(request):
     phone = ""
     email = ""
     next_url = _safe_next(request)
-    method = _login_method(request)
+    auth_mode = "signup" if (request.GET.get("mode") or "").strip().lower() == "signup" else "login"
     if request.method == "POST":
+        auth_mode = "login"
         password = request.POST.get("password") or ""
-        if method == "email":
-            email = _normalize_email(request.POST.get("email") or "")
+        email = _normalize_email(request.POST.get("email") or "")
+        phone = (request.POST.get("phone") or "").strip()
+        if not password:
+            error = "Enter your password."
+        elif email:
             if not _valid_email(email):
                 error = "Enter a valid email address."
-            elif not password:
-                error = "Enter your password."
             else:
                 user = authenticate(request, username=email, password=password)
                 if user is None:
@@ -77,12 +95,9 @@ def login_view(request):
                     login(request, user)
                     return redirect(next_url or "home")
         else:
-            phone = (request.POST.get("phone") or "").strip()
             normalized = normalize_phone(phone)
             if not normalized:
-                error = "Enter a valid 10-digit mobile number."
-            elif not password:
-                error = "Enter your password."
+                error = "Enter a valid 10-digit mobile number or email address."
             else:
                 user = authenticate(request, username=normalized, password=password)
                 if user is None:
@@ -91,16 +106,13 @@ def login_view(request):
                     login(request, user)
                     return redirect(next_url or "home")
 
-    return render(
+    return _auth_page(
         request,
-        "auth/login.html",
-        {
-            "error": error,
-            "phone": phone,
-            "email": email,
-            "login_method": method,
-            "next_url": next_url,
-        },
+        auth_mode=auth_mode,
+        error=error,
+        phone=phone,
+        email=email,
+        next_url=next_url,
     )
 
 
@@ -108,47 +120,54 @@ def signup_view(request):
     if request.user.is_authenticated:
         return redirect(_safe_next(request) or "home")
 
+    next_url = _safe_next(request)
+    if request.method != "POST":
+        query = {"mode": "signup"}
+        if next_url:
+            query["next"] = next_url
+        return redirect(f"{reverse('login')}?{urlencode(query)}")
+
     error = ""
     form = {"name": "", "phone": "", "email": ""}
-    next_url = _safe_next(request)
-    if request.method == "POST":
-        form["name"] = (request.POST.get("name") or "").strip()
-        form["phone"] = (request.POST.get("phone") or "").strip()
-        form["email"] = _normalize_email(request.POST.get("email") or "")
-        password = request.POST.get("password") or ""
-        confirm = request.POST.get("password_confirm") or ""
-        normalized = normalize_phone(form["phone"])
+    form["name"] = (request.POST.get("name") or "").strip()
+    form["phone"] = (request.POST.get("phone") or "").strip()
+    form["email"] = _normalize_email(request.POST.get("email") or "")
+    password = request.POST.get("password") or ""
+    confirm = request.POST.get("password_confirm") or ""
+    normalized = normalize_phone(form["phone"])
 
-        if len(form["name"]) < 2:
-            error = "Enter your full name."
-        elif not _valid_email(form["email"]):
-            error = "Enter a valid email address."
-        elif not normalized:
-            error = "Enter a valid 10-digit mobile number."
-        elif password != confirm:
-            error = "The passwords do not match."
-        elif CustomerProfile.objects.filter(phone=normalized).exists() or User.objects.filter(username=normalized).exists():
-            error = "An account with this phone number already exists. Please log in."
-        elif User.objects.filter(email__iexact=form["email"]).exists():
-            error = "An account with this email already exists. Please log in."
+    if len(form["name"]) < 2:
+        error = "Enter your full name."
+    elif not _valid_email(form["email"]):
+        error = "Enter a valid email address."
+    elif not normalized:
+        error = "Enter a valid 10-digit mobile number."
+    elif password != confirm:
+        error = "The passwords do not match."
+    elif CustomerProfile.objects.filter(phone=normalized).exists() or User.objects.filter(username=normalized).exists():
+        error = "An account with this phone number already exists. Please log in."
+    elif User.objects.filter(email__iexact=form["email"]).exists():
+        error = "An account with this email already exists. Please log in."
+    else:
+        first, last = _split_name(form["name"])
+        user = User(username=normalized, first_name=first, last_name=last, email=form["email"])
+        try:
+            validate_password(password, user)
+        except ValidationError as exc:
+            error = " ".join(exc.messages)
         else:
-            first, last = _split_name(form["name"])
-            user = User(username=normalized, first_name=first, last_name=last, email=form["email"])
-            try:
-                validate_password(password, user)
-            except ValidationError as exc:
-                error = " ".join(exc.messages)
-            else:
-                user.set_password(password)
-                user.save()
-                CustomerProfile.objects.create(user=user, phone=normalized)
-                login(request, user, backend=CUSTOMER_BACKEND)
-                return redirect(next_url or "home")
+            user.set_password(password)
+            user.save()
+            CustomerProfile.objects.create(user=user, phone=normalized)
+            login(request, user, backend=CUSTOMER_BACKEND)
+            return redirect(next_url or "home")
 
-    return render(
+    return _auth_page(
         request,
-        "auth/signup.html",
-        {"error": error, "form": form, "next_url": next_url},
+        auth_mode="signup",
+        error=error,
+        form=form,
+        next_url=next_url,
     )
 
 

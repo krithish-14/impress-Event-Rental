@@ -251,8 +251,21 @@ body.ss-store main {
   transition: transform 0.35s ease;
 }
 
+/* Sofa & Diwan cutouts sit smaller in-frame — enlarge only in this category grid */
+.ss-category-ss-sofa .ss-category-media img,
+.ss-category-ss-diwan .ss-category-media img {
+  padding: 4px;
+  transform: scale(1.28);
+  transform-origin: center center;
+}
+
 .ss-category-card:hover .ss-category-media img {
   transform: scale(1.04);
+}
+
+.ss-category-ss-sofa:hover .ss-category-media img,
+.ss-category-ss-diwan:hover .ss-category-media img {
+  transform: scale(1.34);
 }
 
 .ss-category-placeholder {

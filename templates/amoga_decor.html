@@ -16,16 +16,20 @@
       <div class="amoga-hero-grain"></div>
     </div>
     <div class="amoga-hero-inner">
-      <img
-        src="{% static 'images/ribbon/amoga-decors.webp' %}"
-        alt="Amoga Decor"
-        class="amoga-hero-mark"
-      />
-      <p class="amoga-hero-eyebrow">A décor atelier by Event Rental</p>
-      <h1>Where rooms become memories</h1>
-      <p class="amoga-hero-lead">
-        Tell us the mood, the moment, and the details — we shape florals, lighting, and custom styling into a space that feels entirely yours.
-      </p>
+      <div class="amoga-hero-brand">
+        <img
+          src="{% static 'images/brands/amoga-mark.webp' %}?v=1"
+          alt="Amoga — A Premier Wedding Decor"
+          class="amoga-hero-mark"
+        />
+      </div>
+      <div class="amoga-hero-copy">
+        <p class="amoga-hero-eyebrow">A premier wedding décor</p>
+        <h1>Where rooms become memories</h1>
+        <p class="amoga-hero-lead">
+          Tell us the mood, the moment, and the details — we shape florals, lighting, and custom styling into a space that feels entirely yours.
+        </p>
+      </div>
     </div>
   </header>
 
@@ -100,7 +104,7 @@
             <textarea
               id="amoga-details"
               name="decor_details"
-              rows="7"
+              rows="4"
               required
               placeholder="Palette, florals, lighting mood, stage or mandap vision, must-have elements, venue notes…"
             ></textarea>

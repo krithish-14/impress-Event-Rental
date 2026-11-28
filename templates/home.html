@@ -6,22 +6,19 @@
   <div class="home-banner-viewport" data-home-banner>
     <div class="home-banner-track">
       <div class="home-banner-slide is-active">
-        <img src="{% static 'images/hero/1.webp' %}" alt="Event rental banner 1" />
+        <a href="{% url 'brand' 'impress-signature-seating' %}" class="home-banner-link" aria-label="Explore Impress Signature Seating">
+          <img src="{% static 'images/hero/1.webp' %}?v=2" alt="Signature Seating collection" />
+        </a>
       </div>
       <div class="home-banner-slide">
-        <img src="{% static 'images/hero/2.webp' %}" alt="Event rental banner 2" />
+        <a href="{% url 'collections' %}?brand=event-rental" class="home-banner-link" aria-label="Browse Event Rental products">
+          <img src="{% static 'images/hero/2.webp' %}?v=2" alt="Event Rental products" />
+        </a>
       </div>
       <div class="home-banner-slide">
-        <img src="{% static 'images/hero/3.webp' %}" alt="Event rental banner 3" />
-      </div>
-      <div class="home-banner-slide">
-        <img src="{% static 'images/hero/4.webp' %}" alt="Event rental banner 4" />
-      </div>
-      <div class="home-banner-slide">
-        <img src="{% static 'images/hero/5.webp' %}" alt="Event rental banner 5" />
-      </div>
-      <div class="home-banner-slide">
-        <img src="{% static 'images/hero/6.webp' %}" alt="Event rental banner 6" />
+        <a href="{% url 'amoga_decor' %}" class="home-banner-link" aria-label="Amoga Decor enquiry">
+          <img src="{% static 'images/hero/3.webp' %}?v=2" alt="Amoga Decor enquiry" />
+        </a>
       </div>
     </div>
     <button type="button" class="home-banner-nav home-banner-prev" data-home-banner-prev aria-label="Previous banner">
@@ -39,24 +36,24 @@
     {% for n in "xxxxxxxx" %}
     <div class="ribbon-group"{% if not forloop.first %} aria-hidden="true"{% endif %}>
       <div class="ribbon-item">
-        <div class="ribbon-badge">
-          <img src="{% static 'images/ribbon/amoga-decors.webp' %}" alt="{% if forloop.first %}Amoga Decors{% endif %}" class="ribbon-logo" />
-        </div>
+        <a class="ribbon-badge" href="{% url 'amoga_decor' %}"{% if not forloop.first %} tabindex="-1"{% endif %}>
+          <img src="{% static 'images/ribbon/amoga-decors.webp' %}?v=2" alt="{% if forloop.first %}Amoga{% endif %}" class="ribbon-logo" />
+        </a>
       </div>
       <div class="ribbon-item">
-        <div class="ribbon-badge">
-          <img src="{% static 'images/ribbon/event-rentals.webp' %}" alt="{% if forloop.first %}Event Rentals{% endif %}" class="ribbon-logo" />
-        </div>
+        <a class="ribbon-badge" href="{% url 'collections' %}?brand=event-rental"{% if not forloop.first %} tabindex="-1"{% endif %}>
+          <img src="{% static 'images/ribbon/event-rentals.webp' %}?v=2" alt="{% if forloop.first %}Impress Event Rentals{% endif %}" class="ribbon-logo" />
+        </a>
       </div>
       <div class="ribbon-item">
-        <div class="ribbon-badge">
-          <img src="{% static 'images/ribbon/impress-decors.webp' %}" alt="{% if forloop.first %}Impress Decors{% endif %}" class="ribbon-logo" />
-        </div>
+        <a class="ribbon-badge" href="{% url 'amoga_decor' %}"{% if not forloop.first %} tabindex="-1"{% endif %}>
+          <img src="{% static 'images/ribbon/impress-decors.webp' %}?v=2" alt="{% if forloop.first %}Impress Decors{% endif %}" class="ribbon-logo" />
+        </a>
       </div>
       <div class="ribbon-item">
-        <div class="ribbon-badge">
-          <img src="{% static 'images/ribbon/signature-seating.webp' %}" alt="{% if forloop.first %}Signature Seating{% endif %}" class="ribbon-logo" />
-        </div>
+        <a class="ribbon-badge" href="{% url 'brand' 'impress-signature-seating' %}"{% if not forloop.first %} tabindex="-1"{% endif %}>
+          <img src="{% static 'images/ribbon/signature-seating.webp' %}?v=2" alt="{% if forloop.first %}Impress Signature Seating{% endif %}" class="ribbon-logo" />
+        </a>
       </div>
     </div>
     {% endfor %}

@@ -40,7 +40,7 @@ EVENT_RENTAL_BRAND = {
     "short_name": "Event Rental",
     "tagline": "Premium Rentals for Every Celebration",
     "description": "Sheds, stages, tables, catering, décor, and event infrastructure.",
-    "logo_url": "/static/images/event-rental-logo.png",
+    "logo_url": "/static/images/brands/event-rentals.png",
     "is_active": True,
     "is_primary": True,
     "sort_order": 1,

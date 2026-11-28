@@ -8,7 +8,7 @@ SIGNATURE_SEATING_BRAND = {
     "description": (
         "Curated sofas, diwans, and chairs for weddings, receptions, and VIP lounges."
     ),
-    "logo_url": "/static/images/ribbon/signature-seating.webp",
+    "logo_url": "/static/images/brands/signature-seating.png",
     "is_active": True,
     "is_primary": False,
     "sort_order": 2,
